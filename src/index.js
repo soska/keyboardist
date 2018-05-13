@@ -31,7 +31,7 @@ function createListener(listenForEvent = 'keydown') {
     allListeners[eventName].push(callback);
     return {
       unsubscribe: () => {
-        const index = listeners.indexOf(callback);
+        const index = allListeners[eventName].indexOf(callback);
         listeners.splice(index, 1);
       },
     };
