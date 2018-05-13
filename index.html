@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Keyboardist</title>
+</head>
+<body>
+<script src="dist/keyboardist.js"></script>
+<script>
+  const k = new Keyboardist();
+  console.log(k);
+  k.subscribe('down',()=>{
+    console.log('Pressed down');
+  });
+  k.subscribe('shift+down',()=>{
+    console.log('Pressed Shift + down');
+  });
+</script>
+</body>
+</html>
