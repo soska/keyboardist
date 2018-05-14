@@ -1,5 +1,5 @@
 {
-  "name": "yanni",
+  "name": "keyboardist",
   "version": "1.0.0",
   "description": "simple global keyboard manage",
   "main": "lib/keyboardist.js",
