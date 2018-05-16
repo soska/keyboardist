@@ -9,7 +9,10 @@
           |___/
 ```
 
-An easy way to add keyboard shortcuts to your javascript applications.
+An declarative way to add keyboard shortcuts to your browser applications.
+
+For using with React, there's
+[React Keyboardist](https://github.com/soska/react-keyboardist).
 
 Example:
 
