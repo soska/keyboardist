@@ -32,7 +32,7 @@ function createListener(listenForEvent = 'keydown') {
     return {
       unsubscribe: () => {
         const index = allListeners[eventName].indexOf(callback);
-        allListeners[eventName].listeners.splice(index, 1);
+        allListeners[eventName].splice(index, 1);
       },
     };
   }
