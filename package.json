@@ -1,6 +1,6 @@
 {
   "name": "keyboardist",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "simple global keyboard manager",
   "main": "lib/keyboardist.js",
   "scripts": {
