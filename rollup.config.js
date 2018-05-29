@@ -15,6 +15,14 @@ if (env === 'es' || env === 'cjs') {
   config.plugins.push(
     babel({
       plugins: ['external-helpers'],
+      presets: [
+        [
+          'es2015',
+          {
+            modules: false,
+          },
+        ],
+      ],
     })
   );
 }
