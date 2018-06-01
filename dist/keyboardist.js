@@ -4,16 +4,16 @@
 	(global.Keyboardist = factory());
 }(this, (function () { 'use strict';
 
-const isInputEvent = event => {
+var isInputEvent = function isInputEvent(event) {
   var tag = (event.target || event.nativeEvent.target).tagName;
   return tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
 };
 
-const isEventModifier = event => {
+var isEventModifier = function isEventModifier(event) {
   return event.which === 16 || event.which === 17 || event.which === 18 || event.which === 91;
 };
 
-const map = {
+var map = {
   8: 'backspace',
   9: 'tab',
   13: 'enter',
@@ -55,11 +55,11 @@ const map = {
   222: "'"
 };
 
-const getKeyEventName = event => {
-  const keyCode = event.which;
-  const keys = [];
+var getKeyEventName = function getKeyEventName(event) {
+  var keyCode = event.which;
+  var keys = [];
 
-  let keyName = String.fromCharCode(keyCode).toLowerCase();
+  var keyName = String.fromCharCode(keyCode).toLowerCase();
 
   if (map[keyCode]) {
     keyName = map[keyCode];
@@ -82,8 +82,10 @@ const getKeyEventName = event => {
   return keys.join('+');
 };
 
-function createListener(listenForEvent = 'keydown') {
-  let allListeners = {};
+function createListener() {
+  var listenForEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'keydown';
+
+  var allListeners = {};
 
   function handleKeyEvent(event) {
     if (isEventModifier(event)) {
@@ -94,14 +96,16 @@ function createListener(listenForEvent = 'keydown') {
       return;
     }
 
-    const eventName = getKeyEventName(event);
-    const listeners = allListeners[eventName] || [];
+    var eventName = getKeyEventName(event);
+    var listeners = allListeners[eventName] || [];
 
     if (listeners.length) {
       event.preventDefault();
     }
 
-    listeners.map(listener => listener());
+    listeners.map(function (listener) {
+      return listener();
+    });
   }
 
   function subscribe(eventName, callback) {
@@ -110,8 +114,8 @@ function createListener(listenForEvent = 'keydown') {
     }
     allListeners[eventName].push(callback);
     return {
-      unsubscribe: () => {
-        const index = allListeners[eventName].indexOf(callback);
+      unsubscribe: function unsubscribe() {
+        var index = allListeners[eventName].indexOf(callback);
         allListeners[eventName].splice(index, 1);
       }
     };
@@ -119,7 +123,7 @@ function createListener(listenForEvent = 'keydown') {
 
   document.addEventListener(listenForEvent, handleKeyEvent);
 
-  return { subscribe };
+  return { subscribe: subscribe };
 }
 
 return createListener;
