@@ -7,6 +7,9 @@ import 'prismjs/themes/prism-okaidia.css';
 // document.getElementById('cover').src = cover;
 
 const listener = createListener();
+listener.setMonitor((eventName, matched, originalEvent) => {
+  console.log(`name: ${eventName} ${matched ? '[matched]' : '[not matched]'}`);
+});
 
 const pressKey = keyName => {
   const key = document.querySelector(`.key.${keyName}`);
@@ -16,13 +19,13 @@ const pressKey = keyName => {
   }, 120);
 };
 
-listener.subscribe('space', () => pressKey('space'));
-listener.subscribe('down', () => pressKey('down'));
-listener.subscribe('up', () => pressKey('up'));
-listener.subscribe('left', () => pressKey('left'));
-listener.subscribe('right', () => pressKey('right'));
-listener.subscribe('shift+space', () => pressKey('shiftspace'));
-listener.subscribe('esc', () => pressKey('escape'));
+listener.subscribe('Space', () => pressKey('space'));
+listener.subscribe('Down', () => pressKey('down'));
+listener.subscribe('Up', () => pressKey('up'));
+listener.subscribe('Left', () => pressKey('left'));
+listener.subscribe('Right', () => pressKey('right'));
+listener.subscribe('Shift+Space', () => pressKey('shiftspace'));
+listener.subscribe('Escape', () => pressKey('escape'));
 
 const code = `
 import createListener from 'keyboardist';
@@ -37,13 +40,13 @@ const pressKey = keyName => {
   }, 120);
 };
 
-listener.subscribe('space', () => pressKey('space'));
-listener.subscribe('down', () => pressKey('down'));
-listener.subscribe('up', () => pressKey('up'));
-listener.subscribe('left', () => pressKey('left'));
-listener.subscribe('right', () => pressKey('right'));
-listener.subscribe('shift+space', () => pressKey('shiftspace'));
-listener.subscribe('esc', () => pressKey('escape'));
+listener.subscribe('Space', () => pressKey('space'));
+listener.subscribe('Down', () => pressKey('down'));
+listener.subscribe('Up', () => pressKey('up'));
+listener.subscribe('Left', () => pressKey('left'));
+listener.subscribe('Right', () => pressKey('right'));
+listener.subscribe('Shift+space', () => pressKey('shiftspace'));
+listener.subscribe('Escape', () => pressKey('escape'));
 
 `;
 
