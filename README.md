@@ -1,8 +1,9 @@
-# Keyboardist
+# 🎹 Keyboardist: Declarative keyboard listener
 
 ![](assets/cover.png)
 
 An declarative way to add keyboard shortcuts to your browser applications.
+[Here is a simple demo](https://soska.github.io/keyboardist.js/docs/index.html)
 
 For using with React, there's
 [React Keyboardist](https://github.com/soska/react-keyboardist).
@@ -62,7 +63,7 @@ const keySubscription = listener.subscribe('Slash', () => {
 keySubscription.unsuscribe();
 ```
 
-### Multiple listeners for a Key
+## Multiple listeners for a Key
 
 You can add multiple listeners for the same key, and they will be executed
 starting from the last one.
@@ -109,7 +110,7 @@ listener.subscribe('Space', () => {
 // the console will log 'C', then 'B'.
 ```
 
-### Key Monitor
+## Key Monitor
 
 Keyboardist's event listener has a `setMonitor` method that let's you set a
 function that will monitor all key events. You can either pass `true` to use the
@@ -140,6 +141,9 @@ listener.setMonitor((keyName, matched, originalEvent) => {
   document.getElementById('monitor').innerHTML = `You pressed ${keyName}`;
 });
 ```
+
+You can see an implementation example
+[in the demo](https://soska.github.io/keyboardist.js/docs/index.html)
 
 ## Other events
 
