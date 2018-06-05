@@ -13,11 +13,11 @@ Example:
 // by default it listens to keydown
 const listener = Keyboardist();
 
-listener.subscribe('down', () => {
+listener.subscribe('Down', () => {
   console.log('Pressed down');
 });
 
-listener.subscribe('shift+down', () => {
+listener.subscribe('Shift+Down', () => {
   console.log('Pressed Shift + down');
 });
 ```
@@ -45,7 +45,7 @@ import Keyboardist from 'keyboardist';
 
 const listener = new Keyboardist();
 
-const keySubscription = keyboard.subscribe('/', () => {
+const keySubscription = listener.subscribe('Slash', () => {
   focusSearch();
 });
 ```
@@ -54,12 +54,91 @@ The object returned by `suscribe` has an `unsuscribe` method.
 
 ```javascript
 // create a subscription
-const keySubscription = keyboard.subscribe('/', () => {
+const keySubscription = listener.subscribe('Slash', () => {
   focusSearch();
 });
 
 // remove the subscription
 keySubscription.unsuscribe();
+```
+
+### Multiple listeners for a Key
+
+You can add multiple listeners for the same key, and they will be executed
+starting from the last one.
+
+```javascript
+// create a subscription
+
+listener.subscribe('Space', () => {
+  console.log('A');
+});
+
+listener.subscribe('Space', () => {
+  console.log('B');
+});
+
+listener.subscribe('Space', () => {
+  console.log('C');
+});
+
+// the console will log 'C', then 'B', then 'A' when the spacebr is pressed.
+```
+
+You can stop the _propagation_ of the event chain by returning `false` from the
+listener.
+
+```javascript
+// create a subscription
+
+listener.subscribe('Space', () => {
+  console.log('A');
+  // this will never fire
+});
+
+listener.subscribe('Space', () => {
+  console.log('B');
+  // returns false, stops propagation
+  return false;
+});
+
+listener.subscribe('Space', () => {
+  console.log('C');
+});
+
+// the console will log 'C', then 'B'.
+```
+
+### Key Monitor
+
+Keyboardist's event listener has a `setMonitor` method that let's you set a
+function that will monitor all key events. You can either pass `true` to use the
+default built-in monitor or passa function.
+
+Default monitor is useful in development when you don't know the correct key
+name you want to use.
+
+```javascript
+const listener = new Keyboardist();
+// ue the default monitor
+listener.setMonitor(true);
+
+// will show the key names / combination as you type them. For example:
+// `:keyboard event: KeyA`
+// `:keyboard event: Slash`
+// `:keyboard event: Shift+Space`
+```
+
+You can also pass a custom function that accepts three parameters: `keyName`,
+`matched` which is true if there's at least a listener for that key, and the
+`originalEvent` (which has already been _preventDefaulted_ at this point).
+
+```javascript
+const listener = new Keyboardist();
+// ue the default monitor
+listener.setMonitor((keyName, matched, originalEvent) => {
+  document.getElementById('monitor').innerHTML = `You pressed ${keyName}`;
+});
 ```
 
 ## Other events
