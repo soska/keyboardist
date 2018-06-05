@@ -8,8 +8,10 @@
     "prettier": "prettier --trailing-comma es5 --single-quote --write",
     "dev":
       "webpack-dev-server --mode development --config dev/webpack.config.js",
-    "build:docs": "webpack --mode production --config dev/webpack.config.js",
+    "build:docs":
+      "webpack --mode production --config dev/webpack.config.js && npm run favicon ",
     "format": "yarn run prettier './src/*.js*'",
+    "favicon": "cpx \"src/docs/favicon.*\" \"docs\"",
     "build:commonjs":
       "cross-env NODE_ENV=cjs rollup -c dev/rollup.config.js -o lib/keyboardist.js",
     "build:es":
@@ -30,6 +32,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "cpx": "^1.5.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-plugin-external-helpers": "^6.22.0",
@@ -42,6 +45,7 @@
     "jest": "^23.1.0",
     "prettier": "^1.8.2",
     "prismjs": "^1.14.0",
+    "rimraf": "^2.6.2",
     "rollup": "^0.52.0",
     "rollup-plugin-babel": "^3.0.2",
     "rollup-plugin-node-resolve": "^3.0.0",
