@@ -21,7 +21,7 @@
     "build:umd:min":
       "cross-env BABEL_ENV=es NODE_ENV=production rollup -c dev/rollup.config.js -o dist/keyboardist.min.js",
     "build":
-      "npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min"
+      "npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min && npm run build:docs"
   },
   "keywords": ["keyboard", "shortcuts"],
   "author": "Armando Sosa <arm.sosa@gmail.com>",
