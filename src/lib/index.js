@@ -34,7 +34,18 @@ function createListener(listenForEvent = 'keydown') {
       event.preventDefault();
     }
 
-    listeners.map(listener => listener());
+    // flag to tell if execution should continue;
+    let propagate = true;
+    //
+    for (let i = listeners.length - 1; i >= 0; i--) {
+      if (listeners[i]) {
+        propagate = listeners[i]();
+      }
+      if (propagate === false) {
+        break;
+      }
+    }
+    // listeners.map(listener => listener());
   }
 
   // creates a subscription
