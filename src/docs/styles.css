@@ -9,6 +9,13 @@ h1 {
   color: white;
 }
 
+.monitor {
+  padding: 22px;
+  text-align: center;
+  color: #e0e0e0;
+  font-size: 33px;
+}
+
 .instructions {
   background: #f0f0f0;
   padding: 11px;
