@@ -29,4 +29,12 @@ describe('Is event modifier', () => {
       })
     ).toBe(false);
   });
+
+  test('Works with which', () => {
+    expect(
+      isEventModifier({
+        which: 16,
+      })
+    ).toBe(true);
+  });
 });
