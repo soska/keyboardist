@@ -1,12 +1,12 @@
-import isInputEvent from './is-input-event';
-import isEventModifier from './is-event-modifier';
-import getKeyEventName from './get-key-event-name';
+import isInputEvent from "./is-input-event";
+import isEventModifier from "./is-event-modifier";
+import getKeyEventName from "./get-key-event-name";
 
 const defaultMonitor = eventName => {
-  console.log(':keyboard event:', eventName);
+  console.log(":keyboard event:", eventName);
 };
 
-function createListener(listenForEvent = 'keydown') {
+function createListener(listenForEvent = "keydown") {
   let allListeners = {};
 
   let __monitor__ = null;
@@ -25,7 +25,7 @@ function createListener(listenForEvent = 'keydown') {
 
     const listeners = allListeners[eventName.toLowerCase()] || [];
 
-    if (typeof __monitor__ === 'function') {
+    if (typeof __monitor__ === "function") {
       const matched = listeners.length > 0;
       __monitor__(eventName, matched, event);
     }
@@ -54,9 +54,9 @@ function createListener(listenForEvent = 'keydown') {
     // the keys are lowercased so both 'Shift+Space' and 'shift+space' works.
     eventName = eventName.toLowerCase();
     // remove spaces so both 'Shift + Space' and 'shift+space' works.
-    eventName.replace(/\s/, '');
+    eventName.replace(/\s/, "");
 
-    if (typeof allListeners[eventName] === 'undefined') {
+    if (typeof allListeners[eventName] === "undefined") {
       allListeners[eventName] = [];
     }
     allListeners[eventName].push(callback);
@@ -77,9 +77,19 @@ function createListener(listenForEvent = 'keydown') {
     }
   }
 
-  document.addEventListener(listenForEvent, handleKeyEvent);
+  // adds the event listener to the document
+  function startListening() {
+    document.addEventListener(listenForEvent, handleKeyEvent);
+  }
 
-  return { subscribe, setMonitor };
+  // removes the event listener from the document
+  function stopListening() {
+    document.removeEventListener(listenForEvent, handleKeyEvent);
+  }
+
+  startListening();
+
+  return { subscribe, setMonitor, startListening, stopListening };
 }
 
 export default createListener;
