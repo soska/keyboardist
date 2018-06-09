@@ -162,3 +162,23 @@ upListener.subscribe('a', () => {
   console.log('Just released the A key');
 });
 ```
+
+## Stop listening
+
+Internally `createListener` attaches only one event listener to your document to listen to your keystrokes. If you ever want to remove that listener you can call `stopListening` on the listener instance.
+
+```javascript
+const listener = Keyboardist();
+
+listener.subscribe('a', () => {
+  console.log('Just pressed the A key');
+});
+
+// Remove the event listener from the document
+listener.stopListening();
+
+// Reattach it again:
+listener.startListening();
+
+
+```
