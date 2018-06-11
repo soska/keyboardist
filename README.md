@@ -2,7 +2,7 @@
 
 ![](assets/cover.png)
 
-An declarative way to add keyboard shortcuts to your browser applications.
+A declarative way to add keyboard shortcuts to your browser applications.
 [Here is a simple demo](https://soska.github.io/keyboardist.js/docs/index.html)
 
 For using with React, there's
@@ -33,10 +33,10 @@ $ npm install keyboardist
 
 ## Usage
 
-the `Keyboardist` returns a listener object that has only one method:
-`suscribe`.
+The `Keyboardist` constructor returns a listener object that has only one method:
+`subscribe`.
 
-`suscribe` accepts two arguments: a key or key combination and a method that
+`subscribe` accepts two arguments: a key or key combination and a method that
 will be called when that key (or key combination) is triggered by the user.
 
 Example:
@@ -51,7 +51,7 @@ const keySubscription = listener.subscribe('Slash', () => {
 });
 ```
 
-The object returned by `suscribe` has an `unsuscribe` method.
+The object returned by `subscribe` has an `unsubscribe` method.
 
 ```javascript
 // create a subscription
@@ -60,7 +60,7 @@ const keySubscription = listener.subscribe('Slash', () => {
 });
 
 // remove the subscription
-keySubscription.unsuscribe();
+keySubscription.unsubscribe();
 ```
 
 ## Multiple listeners for a Key
@@ -114,7 +114,7 @@ listener.subscribe('Space', () => {
 
 Keyboardist's event listener has a `setMonitor` method that let's you set a
 function that will monitor all key events. You can either pass `true` to use the
-default built-in monitor or passa function.
+default built-in monitor or pass a function.
 
 Default monitor is useful in development when you don't know the correct key
 name you want to use.
