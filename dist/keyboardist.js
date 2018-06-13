@@ -157,7 +157,7 @@ function createListener() {
   }
 
   // creates a subscription
-  // returns the unsuscribe function;
+  // returns the unsubscribe function;
   function subscribe(eventName, callback) {
     // the keys are lowercased so both 'Shift+Space' and 'shift+space' works.
     eventName = eventName.toLowerCase();

@@ -24,7 +24,7 @@ describe("Creates Listener", () => {
     expect(mockCallback).toBeCalled();
   });
 
-  test("Unsuscribe works", () => {
+  test("Unsubscribe works", () => {
     const mockCallback = jest.fn();
     const subscription = listener.subscribe("KeyA", mockCallback);
     subscription.unsubscribe();
