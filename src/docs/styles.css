@@ -1,12 +1,24 @@
 .branding {
-  background: tomato;
+  /*background: tomato;*/
   padding: 11px;
+  border-bottom: 1px solid #999;
 }
 
 h1 {
   font-size: 22px;
   margin: 0;
-  color: white;
+  color: #151515;
+}
+
+h2 {
+  font-size: 18px;
+  padding: 11px;
+  color: #999;
+}
+
+.demo {
+  margin: 22px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .monitor {
@@ -48,4 +60,14 @@ h1 {
   text-shadow: saddlebrown 0 -1px 0;
   transform: translate3d(0, 6px, 0);
   box-shadow: indianred 0 3px 0, rgba(0, 0, 0, 0.5) 0 5px 11px;
+}
+
+.input {
+  border: 1px solid #999;
+  padding: 9px 12px;
+  border-radius: 4px;
+  display: block;
+  margin: 11px 0;
+  width: 100%;
+  font-size: 18px;
 }
