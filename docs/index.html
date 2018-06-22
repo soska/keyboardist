@@ -15,20 +15,32 @@
 <body>
   <div class="container">
     <div class="branding">
-      <h1>Keyboardist.js Demo</h1>
+      <h1>🎹 Keyboardist Demo</h1>
     </div>
-    <div class="instructions">
-      Instructions: Press the key or key combinations to activate the UI
+    <div class="demo">
+      <h2>Global Listener</h2>
+      <div class="instructions">
+        Instructions: Press the key or key combinations to activate the UI
+      </div>
+      <div class="monitor">press any key</div>
+      <div class="keys">
+        <div class="space key">Space</div>
+        <div class="up key">Up</div>
+        <div class="down key">Down</div>
+        <div class="left key">Left</div>
+        <div class="right key">right</div>
+        <div class="shiftspace key">Shift+Space</div>
+        <div class="escape key">Esc</div>
+      </div>
     </div>
-    <div class="monitor">press any key</div>
-    <div class="keys">
-      <div class="space key">Space</div>
-      <div class="up key">Up</div>
-      <div class="down key">Down</div>
-      <div class="left key">Left</div>
-      <div class="right key">right</div>
-      <div class="shiftspace key">Shift+Space</div>
-      <div class="escape key">Esc</div>
+    <div class="demo">
+      <h2>
+        Listening on an input element
+      </h2>
+      <div class="instructions">
+        Instructions: Click inside the input to focus. Then use up and down arrows to increment and decrement.
+      </div>
+      <input type="text" id="text-input" class="input">
     </div>
     <div class="instructions">
       Here's the code for the demo

@@ -1,15 +1,28 @@
-import isInputEvent from "./is-input-event";
-import isEventModifier from "./is-event-modifier";
-import getKeyEventName from "./get-key-event-name";
+import isInputElement from './is-input-element';
+import isInputEvent from './is-input-event';
+import isEventModifier from './is-event-modifier';
+import getKeyEventName from './get-key-event-name';
 
 const defaultMonitor = eventName => {
-  console.log(":keyboard event:", eventName);
+  console.log(':keyboard event:', eventName);
 };
 
-function createListener(listenForEvent = "keydown") {
-  let allListeners = {};
+function createListener(listenForEvent = 'keydown', element = null) {
+  if (typeof window === undefined) {
+    // not a browser environment?
+    return false;
+  }
 
-  let __monitor__ = null;
+  let __subscriptions = {};
+  let __monitor = null;
+
+  // default element is the window document
+  if (element === null) {
+    element = window.document;
+  }
+
+  // ignore input events, except when the element is an input.
+  const ignoreInputEvents = !isInputElement(element);
 
   // listens to the event and fires the appropiate event subscription
   function handleKeyEvent(event) {
@@ -17,17 +30,16 @@ function createListener(listenForEvent = "keydown") {
       return;
     }
 
-    if (isInputEvent(event)) {
+    if (ignoreInputEvents && isInputEvent(event)) {
       return;
     }
 
     const eventName = getKeyEventName(event);
+    const listeners = __subscriptions[eventName.toLowerCase()] || [];
 
-    const listeners = allListeners[eventName.toLowerCase()] || [];
-
-    if (typeof __monitor__ === "function") {
+    if (typeof __monitor === 'function') {
       const matched = listeners.length > 0;
-      __monitor__(eventName, matched, event);
+      __monitor(eventName, matched, event);
     }
 
     if (listeners.length) {
@@ -48,22 +60,21 @@ function createListener(listenForEvent = "keydown") {
     // listeners.map(listener => listener());
   }
 
-  // creates a subscription
-  // returns the unsubscribe function;
-  function subscribe(eventName, callback) {
-    // the keys are lowercased so both 'Shift+Space' and 'shift+space' works.
-    eventName = eventName.toLowerCase();
+  // creates a subscription and returns the unsubscribe function;
+  function subscribe(name, callback) {
+    // Subscripton names are lowercased so both 'Shift+Space' and 'shift+space' works.
+    name = name.toLowerCase();
     // remove spaces so both 'Shift + Space' and 'shift+space' works.
-    eventName.replace(/\s/, "");
+    name.replace(/\s/, '');
 
-    if (typeof allListeners[eventName] === "undefined") {
-      allListeners[eventName] = [];
+    if (typeof __subscriptions[name] === 'undefined') {
+      __subscriptions[name] = [];
     }
-    allListeners[eventName].push(callback);
+    __subscriptions[name].push(callback);
     return {
       unsubscribe: () => {
-        const index = allListeners[eventName].indexOf(callback);
-        allListeners[eventName].splice(index, 1);
+        const index = __subscriptions[name].indexOf(callback);
+        __subscriptions[name].splice(index, 1);
       },
     };
   }
@@ -71,20 +82,20 @@ function createListener(listenForEvent = "keydown") {
   // alows to set a monitor function that will run on every event
   function setMonitor(monitor = null) {
     if (monitor === true) {
-      __monitor__ = defaultMonitor;
+      __monitor = defaultMonitor;
     } else {
-      __monitor__ = monitor;
+      __monitor = monitor;
     }
   }
 
-  // adds the event listener to the document
+  // adds the event listener to the element
   function startListening() {
-    document.addEventListener(listenForEvent, handleKeyEvent);
+    element.addEventListener(listenForEvent, handleKeyEvent);
   }
 
-  // removes the event listener from the document
+  // removes the event listener from the element
   function stopListening() {
-    document.removeEventListener(listenForEvent, handleKeyEvent);
+    element.removeEventListener(listenForEvent, handleKeyEvent);
   }
 
   startListening();

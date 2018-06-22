@@ -38,6 +38,32 @@ listener.subscribe('Escape', () => pressKey('escape'));
 
 listener.setMonitor(monitor);
 
+// Text input demo
+const input = document.getElementById('text-input');
+const inputListener = createListener('keydown', input);
+
+let val = 0;
+const counterUp = () => {
+  val++;
+  counterUpdate();
+};
+const counterDown = () => {
+  val--;
+  counterUpdate();
+};
+const counterReset = () => {
+  val = 0;
+  counterUpdate();
+};
+
+const counterUpdate = () => (input.value = val);
+
+counterUpdate();
+
+inputListener.subscribe('Down', counterDown);
+inputListener.subscribe('Up', counterUp);
+inputListener.subscribe('Escape', counterReset);
+
 const code = `
 /*
  * This is a simplified version of the code for this demo.
@@ -45,8 +71,13 @@ const code = `
  * --------------------------------------------------------
  */
 
+
 // import the library
 import createListener from 'keyboardist';
+
+
+// ## Global listener demo
+// --------------------------
 
 // creates a listener, by default it listens to 'keydown' events.
 const listener = createListener();
@@ -80,6 +111,34 @@ listener.subscribe('Escape', () => pressKey('escape'));
 
 // set the monitor function
 listener.setMonitor(monitor);
+
+
+// ## Text input demo
+// --------------------------
+const input = document.getElementById('text-input');
+const inputListener = createListener('keydown', input);
+
+let val = 0;
+const counterUp = () => {
+  val++;
+  counterUpdate();
+};
+const counterDown = () => {
+  val--;
+  counterUpdate();
+};
+const counterReset = () => {
+  val = 0;
+  counterUpdate();
+};
+
+const counterUpdate = () => (input.value = val);
+
+counterUpdate();
+
+inputListener.subscribe('Down', counterDown);
+inputListener.subscribe('Up', counterUp);
+inputListener.subscribe('Escape', counterReset);
 
 
 `;
