@@ -67,7 +67,7 @@ inputListener.subscribe('Escape', counterReset);
 const code = `
 /*
  * This is a simplified version of the code for this demo.
- * Other than the Keyboard.js library, it's all Vanilla JS.
+ * Other than the Keyboardist library, it's all Vanilla JS.
  * --------------------------------------------------------
  */
 

@@ -3,7 +3,7 @@
 ![](assets/cover.png)
 
 A declarative way to add keyboard shortcuts to your browser applications.
-[Here is a simple demo](https://soska.github.io/keyboardist.js/docs/index.html)
+[Here is a simple demo](https://soska.github.io/keyboardist/docs/index.html)
 
 For using with React, there's
 [React Keyboardist](https://github.com/soska/react-keyboardist).
@@ -33,8 +33,8 @@ $ npm install keyboardist
 
 ## Usage
 
-The `Keyboardist` constructor returns a listener object that has only one method:
-`subscribe`.
+The `Keyboardist` constructor returns a listener object that has only one
+method: `subscribe`.
 
 `subscribe` accepts two arguments: a key or key combination and a method that
 will be called when that key (or key combination) is triggered by the user.
@@ -165,7 +165,9 @@ upListener.subscribe('a', () => {
 
 ## Stop listening
 
-Internally `createListener` attaches only one event listener to your document to listen to your keystrokes. If you ever want to remove that listener you can call `stopListening` on the listener instance.
+Internally `createListener` attaches only one event listener to your document to
+listen to your keystrokes. If you ever want to remove that listener you can call
+`stopListening` on the listener instance.
 
 ```javascript
 const listener = Keyboardist();
@@ -179,6 +181,4 @@ listener.stopListening();
 
 // Reattach it again:
 listener.startListening();
-
-
 ```
