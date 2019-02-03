@@ -28,7 +28,7 @@
   "homepage": "https://github.com/soska/keyboardist.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:soska/keyboardist.js.git"
+    "url": "git@github.com:soska/keyboardist.git"
   },
   "license": "MIT",
   "devDependencies": {
