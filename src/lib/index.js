@@ -51,7 +51,7 @@ function createListener(listenForEvent = 'keydown', element = null) {
     //
     for (let i = listeners.length - 1; i >= 0; i--) {
       if (listeners[i]) {
-        propagate = listeners[i]();
+        propagate = listeners[i](event);
       }
       if (propagate === false) {
         break;
