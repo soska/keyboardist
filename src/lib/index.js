@@ -8,7 +8,7 @@ const defaultMonitor = eventName => {
 };
 
 function createListener(listenForEvent = 'keydown', element = null) {
-  if (typeof window === undefined) {
+  if (typeof window === 'undefined') {
     // not a browser environment?
     return false;
   }
