@@ -17,11 +17,14 @@ describe("Creates Listener", () => {
     expect(subscription.unsubscribe).toBeDefined();
   });
 
-  test("Subscriptions are fired", () => {
+  test("Subscriptions are fired and receive KeyboardEvent object", () => {
     const mockCallback = jest.fn();
     listener.subscribe("Space", mockCallback);
     fireEvent.keyDown(document, { code: "Space" });
+
     expect(mockCallback).toBeCalled();
+    // First argument [0] of first function call [0]
+    expect(mockCallback.mock.calls[0][0] instanceof KeyboardEvent).toBe(true);
   });
 
   test("Unsubscribe works", () => {
