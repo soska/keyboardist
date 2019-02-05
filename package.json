@@ -25,10 +25,10 @@
   },
   "keywords": ["keyboard", "shortcuts"],
   "author": "Armando Sosa <arm.sosa@gmail.com>",
-  "homepage": "https://github.com/soska/keyboardist.js",
+  "homepage": "https://github.com/soska/keyboardist",
   "repository": {
     "type": "git",
-    "url": "git@github.com:soska/keyboardist.js.git"
+    "url": "git@github.com:soska/keyboardist.git"
   },
   "license": "MIT",
   "devDependencies": {
