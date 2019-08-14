@@ -26,6 +26,10 @@ const getKeyEventName = event => {
     keys.push('Ctrl');
   }
 
+  if (event.metaKey) {
+    keys.push('Meta');
+  }
+
   keys.push(keyName);
 
   return keys.join('+');
