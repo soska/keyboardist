@@ -110,15 +110,13 @@ var getKeyEventName = function getKeyEventName(event) {
     keys.push('Ctrl');
   }
 
+  if (event.metaKey) {
+    keys.push('Meta');
+  }
+
   keys.push(keyName);
 
   return keys.join('+');
-};
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-  return typeof obj;
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
 
 var defaultMonitor = function defaultMonitor(eventName) {
@@ -129,7 +127,7 @@ function createListener() {
   var listenForEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'keydown';
   var element = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
-  if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) === undefined) {
+  if (typeof window === 'undefined') {
     // not a browser environment?
     return false;
   }
@@ -172,7 +170,7 @@ function createListener() {
     //
     for (var i = listeners.length - 1; i >= 0; i--) {
       if (listeners[i]) {
-        propagate = listeners[i]();
+        propagate = listeners[i](event);
       }
       if (propagate === false) {
         break;
