@@ -34,6 +34,7 @@ listener.subscribe('Up', () => pressKey('up'));
 listener.subscribe('Left', () => pressKey('left'));
 listener.subscribe('Right', () => pressKey('right'));
 listener.subscribe('Shift+Space', () => pressKey('shiftspace'));
+listener.subscribe('Meta+Space', () => pressKey('metaspace'));
 listener.subscribe('Escape', () => pressKey('escape'));
 
 listener.setMonitor(monitor);
