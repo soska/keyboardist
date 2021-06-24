@@ -2,15 +2,19 @@ import isInputElement from "./is-input-element";
 import isInputEvent from "./is-input-event";
 import isEventModifier from "./is-event-modifier";
 import getKeyEventName from "./get-key-event-name";
-import { getBus } from "@jiveworld/minibus";
+import { getBus, MinibusCallback } from "@jiveworld/minibus";
 
-const defaultMonitor = (eventName) => {
+const defaultMonitor = (eventName: string) => {
   console.log(":keyboard event:", eventName);
 };
 
-function createListener(listenForEvent = "keydown", element = null) {
+type KeyboardEvent = "keydown" | "keyup";
+
+function createListener(
+  listenForEvent: KeyboardEvent = "keydown",
+  element: Document | Element | null = null
+) {
   const bus = getBus("@minibus/" + listenForEvent);
-  window.bus = bus;
 
   if (typeof window === "undefined") {
     // not a browser environment?
@@ -27,15 +31,14 @@ function createListener(listenForEvent = "keydown", element = null) {
   // ignore input events, except when the element is an input.
   const ignoreInputEvents = !isInputElement(element);
 
-  function normalize(eventName) {
+  function normalize(eventName: string) {
     return eventName
       .toLowerCase() // Subscripton names are lowercased so both 'Shift+Space' and 'shift+space' works.
       .replace(/\s/, ""); // remove spaces so both 'Shift + Space' and 'shift+space' works.
   }
 
   // listens to the event and fires the appropiate event subscription
-  function handleKeyEvent(event) {
-    console.log(event);
+  function handleKeyEvent(event: any) {
     if (isEventModifier(event)) {
       return;
     }
@@ -45,11 +48,15 @@ function createListener(listenForEvent = "keydown", element = null) {
     }
 
     const eventName = normalize(getKeyEventName(event));
+
+    const noEvents = bus.isChannelEmpty(eventName);
+
+    bus.emit("monitor", eventName, !noEvents, event);
     bus.emit(eventName, event);
   }
 
   // creates a subscription and returns the unsubscribe function;
-  function subscribe(name, callback) {
+  function subscribe(name: string, callback: () => void) {
     const subscription = bus.subscribe(normalize(name), (event) => {
       event.preventDefault();
       callback();
@@ -58,22 +65,26 @@ function createListener(listenForEvent = "keydown", element = null) {
   }
 
   // alows to set a monitor function that will run on every event
-  function setMonitor(monitor = null) {
+  function setMonitor(monitor: MinibusCallback | Boolean = false) {
     if (monitor === true) {
-      __monitor = defaultMonitor;
-    } else {
-      __monitor = monitor;
+      bus.subscribe("monitor", defaultMonitor);
+    } else if (typeof monitor === "function") {
+      bus.subscribe("monitor", monitor);
     }
   }
 
   // adds the event listener to the element
   function startListening() {
-    element.addEventListener(listenForEvent, handleKeyEvent);
+    if (element) {
+      element.addEventListener(listenForEvent, handleKeyEvent);
+    }
   }
 
   // removes the event listener from the element
   function stopListening() {
-    element.removeEventListener(listenForEvent, handleKeyEvent);
+    if (element) {
+      element.removeEventListener(listenForEvent, handleKeyEvent);
+    }
   }
 
   startListening();
