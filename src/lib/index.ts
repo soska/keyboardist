@@ -2,18 +2,28 @@ import isInputElement from "./is-input-element";
 import isInputEvent from "./is-input-event";
 import isEventModifier from "./is-event-modifier";
 import getKeyEventName from "./get-key-event-name";
-import { getBus, MinibusCallback } from "@jiveworld/minibus";
+import {
+  getBus,
+  MinibusCallback,
+  MinibusUnsubscriber,
+} from "@jiveworld/minibus";
 
 const defaultMonitor = (eventName: string) => {
   console.log(":keyboard event:", eventName);
 };
 
-type KeyboardEvent = "keydown" | "keyup";
+export type KeyboardEvent = "keydown" | "keyup";
+export interface KeyboardistListener {
+  subscribe: (name: string, callback: MinibusCallback) => MinibusUnsubscriber;
+  setMonitor: (monitor?: MinibusCallback | Boolean) => void;
+  startListening: () => void;
+  stopListening: () => void;
+}
 
 function createListener(
   listenForEvent: KeyboardEvent = "keydown",
   element: Document | Element | null = null
-) {
+): false | KeyboardistListener {
   const bus = getBus("@minibus/" + listenForEvent);
 
   if (typeof window === "undefined") {
@@ -54,7 +64,7 @@ function createListener(
   }
 
   // creates a subscription and returns the unsubscribe function;
-  function subscribe(name: string, callback: () => void) {
+  function subscribe(name: string, callback: MinibusCallback) {
     const subscription = bus.subscribe(normalize(name), (event) => {
       event.preventDefault();
       callback();
