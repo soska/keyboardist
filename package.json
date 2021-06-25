@@ -1,6 +1,6 @@
 {
   "name": "keyboardist",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "Armando Sosa <arm.sosa@gmail.com>",
   "license": "MIT",
   "description": "simple global keyboard manager",
