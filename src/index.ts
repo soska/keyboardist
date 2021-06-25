@@ -20,7 +20,7 @@ export interface KeyboardistListener {
   stopListening: () => void;
 }
 
-function createListener(
+export function createListener(
   listenForEvent: KeyboardEvent = "keydown",
   element: Document | Element | null = null
 ): false | KeyboardistListener {
@@ -99,5 +99,3 @@ function createListener(
 
   return { subscribe, setMonitor, startListening, stopListening };
 }
-
-export default createListener;

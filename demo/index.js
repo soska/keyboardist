@@ -1,5 +1,5 @@
 import { highlight, languages } from "prismjs";
-import createListener from "../lib";
+import { createListener } from "../src";
 import "./styles.css";
 import "prismjs/themes/prism-okaidia.css";
 

@@ -1,8 +1,5 @@
 {
-  "include": [
-    "src",
-    "types"
-  ],
+  "include": ["src"],
   "compilerOptions": {
     "module": "esnext",
     "lib": [
@@ -19,14 +16,13 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "paths": {
       "*": [
         "src/*",
         "node_modules/*"
       ]
     },
-    "jsx": "react",
     "esModuleInterop": true
   }
 }
