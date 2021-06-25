@@ -21,8 +21,6 @@ function createListener(
     return false;
   }
 
-  let __monitor = null;
-
   // default element is the window document
   if (element === null) {
     element = window.document;

@@ -11,7 +11,11 @@
   "scripts": {
     "test": "jest",
     "favicon": "cpx \"src/docs/favicon.*\" \"docs\"",
-    "build": "microbundle"
+    "clean": "rm -rf dist",
+    "build": "microbundle",
+    "prepublish": "npm run clean && npm run build",
+    "build:docs": "vite build src/docs --outDir ../../docs",
+    "dev": "vite src/docs --port 8000"
   },
   "keywords": [
     "keyboard",
@@ -26,12 +30,12 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.23",
-    "cpx": "^1.5.0",
-    "cross-env": "^5.1.5",
     "jest": "^23.1.0",
     "microbundle": "^0.13.3",
+    "prismjs": "^1.23.0",
     "ts-jest": "^27.0.3",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.4",
+    "vite": "^2.3.8"
   },
   "dependencies": {
     "@jiveworld/minibus": "^1.0.1"
