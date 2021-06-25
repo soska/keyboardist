@@ -11,15 +11,17 @@ For using with React, there's
 Example:
 
 ```javascript
-// by default it listens to keydown
-const listener = Keyboardist();
+import { createListener } from "keyboardist";
 
-listener.subscribe('Down', () => {
-  console.log('Pressed down');
+// by default it listens to keydown
+const listener = createListener();
+
+listener.subscribe("Down", () => {
+  console.log("Pressed down");
 });
 
-listener.subscribe('Shift+Down', () => {
-  console.log('Pressed Shift + down');
+listener.subscribe("Shift+Down", () => {
+  console.log("Pressed Shift + down");
 });
 ```
 
@@ -27,8 +29,8 @@ listener.subscribe('Shift+Down', () => {
 
 Example:
 
-```
-$ npm install keyboardist
+```sh
+npm install keyboardist
 ```
 
 ## Usage
@@ -42,11 +44,11 @@ will be called when that key (or key combination) is triggered by the user.
 Example:
 
 ```javascript
-import Keyboardist from 'keyboardist';
+import { createListener } from "keyboardist";
 
-const listener = new Keyboardist();
+const listener = new createListener();
 
-const keySubscription = listener.subscribe('Slash', () => {
+const keySubscription = listener.subscribe("Slash", () => {
   focusSearch();
 });
 ```
@@ -55,7 +57,7 @@ The object returned by `subscribe` has an `unsubscribe` method.
 
 ```javascript
 // create a subscription
-const keySubscription = listener.subscribe('Slash', () => {
+const keySubscription = listener.subscribe("Slash", () => {
   focusSearch();
 });
 
@@ -71,43 +73,19 @@ starting from the last one.
 ```javascript
 // create a subscription
 
-listener.subscribe('Space', () => {
-  console.log('A');
+listener.subscribe("Space", () => {
+  console.log("A");
 });
 
-listener.subscribe('Space', () => {
-  console.log('B');
+listener.subscribe("Space", () => {
+  console.log("B");
 });
 
-listener.subscribe('Space', () => {
-  console.log('C');
+listener.subscribe("Space", () => {
+  console.log("C");
 });
 
 // the console will log 'C', then 'B', then 'A' when the spacebr is pressed.
-```
-
-You can stop the _propagation_ of the event chain by returning `false` from the
-listener.
-
-```javascript
-// create a subscription
-
-listener.subscribe('Space', () => {
-  console.log('A');
-  // this will never fire
-});
-
-listener.subscribe('Space', () => {
-  console.log('B');
-  // returns false, stops propagation
-  return false;
-});
-
-listener.subscribe('Space', () => {
-  console.log('C');
-});
-
-// the console will log 'C', then 'B'.
 ```
 
 ## Key Monitor
@@ -138,12 +116,9 @@ You can also pass a custom function that accepts three parameters: `keyName`,
 const listener = new Keyboardist();
 // ue the default monitor
 listener.setMonitor((keyName, matched, originalEvent) => {
-  document.getElementById('monitor').innerHTML = `You pressed ${keyName}`;
+  document.getElementById("monitor").innerHTML = `You pressed ${keyName}`;
 });
 ```
-
-You can see an implementation example
-[in the demo](https://soska.github.io/keyboardist.js/docs/index.html)
 
 ## Other events
 
@@ -151,15 +126,15 @@ By default, the listener listens to `keydown` events, but you can pass `keyup`
 as an argument to `Keyboardist` to use that event instead
 
 ```javascript
-const downListener = Keyboardist();
-const upListener = Keyboardist('keyup');
+const downListener = createListener();
+const upListener = Keyboardist("keyup");
 
-downListener.subscribe('a', () => {
-  console.log('Just pressed the A key');
+downListener.subscribe("a", () => {
+  console.log("Just pressed the A key");
 });
 
-upListener.subscribe('a', () => {
-  console.log('Just released the A key');
+upListener.subscribe("a", () => {
+  console.log("Just released the A key");
 });
 ```
 
@@ -170,10 +145,10 @@ listen to your keystrokes. If you ever want to remove that listener you can call
 `stopListening` on the listener instance.
 
 ```javascript
-const listener = Keyboardist();
+const listener = createListener();
 
-listener.subscribe('a', () => {
-  console.log('Just pressed the A key');
+listener.subscribe("a", () => {
+  console.log("Just pressed the A key");
 });
 
 // Remove the event listener from the document
