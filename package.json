@@ -1,33 +1,34 @@
 {
   "name": "keyboardist",
   "version": "2.0.1",
-  "type": "module",
+  "author": "Armando Sosa <arm.sosa@gmail.com>",
+  "license": "MIT",
   "description": "simple global keyboard manager",
-  "source": "src/lib/index.ts",
-  "exports": "./dist/keyboardist.modern.js",
-  "main": "./dist/keyboardist.js",
-  "module": "./dist/keyboardist.module.js",
-  "unpkg": "./dist/keyboardist.umd.js",
+  "source": "src/index.ts",
+  "types": "src/index.d.ts",
+  "main": "dist/keyboardist.js",
+  "module": "dist/keyboardist.module.js",
+  "unpkg": "dist/keyboardist.umd.js",
   "scripts": {
     "test": "jest",
     "favicon": "cpx \"src/docs/favicon.*\" \"docs\"",
     "clean": "rm -rf dist",
-    "build": "microbundle",
-    "prepublish": "npm run clean && npm run build",
+    "clean-after": "rm -rf dist/docs && mv dist/lib/*.d.ts dist && rm -rf dist/lib ",
+    "build": "npm run clean && microbundle",
+    "prepublish": "npm run build",
+    "postpublish": "git push origin --follow-tags",
     "build:docs": "vite build src/docs --outDir ../../docs",
-    "dev": "vite src/docs --port 8000"
+    "dev": "vite demo --port 8000"
   },
   "keywords": [
     "keyboard",
     "shortcuts"
   ],
-  "author": "Armando Sosa <arm.sosa@gmail.com>",
   "homepage": "https://github.com/soska/keyboardist",
   "repository": {
     "type": "git",
     "url": "git@github.com:soska/keyboardist.git"
   },
-  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "jest": "^23.1.0",
