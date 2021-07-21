@@ -17,8 +17,8 @@
     "build": "npm run clean && microbundle",
     "prepublish": "npm run build",
     "postpublish": "git push origin --follow-tags",
-    "build:docs": "vite build src/docs --outDir ../../docs",
-    "dev": "vite demo --port 8000"
+    "build:docs": "vite build demo-src --outDir ../demo",
+    "dev": "vite demo-src --port 8000"
   },
   "keywords": [
     "keyboard",
