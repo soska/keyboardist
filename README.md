@@ -9,9 +9,14 @@ import { createListener } from "keyboardist";
 
 const listener = createListener();
 
-listener.subscribe("Shift+Down", () => {
+listener.subscribe("shift+down", () => {
   console.log("Pressed Shift + down");
 });
+
+// bindings can live on stackable layers — a modal can own the
+// keyboard and hand it back when it closes
+const modal = listener.layer("modal", { escape: close }, { exclusive: true });
+const pop = modal.push();
 ```
 
 This is the Keyboardist monorepo:

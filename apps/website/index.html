@@ -46,6 +46,27 @@
         </div>
       </div>
       <div class="demo">
+        <h2>Layers</h2>
+        <div class="instructions">
+          Instructions: Press <strong>M</strong> (or the button) to open a
+          modal. While it's open, an <em>exclusive</em> layer owns the
+          keyboard: the keys above go inert, and <strong>Esc</strong> closes
+          the modal and hands the keyboard back.
+        </div>
+        <button type="button" id="open-modal" class="btn btn-primary">
+          Open modal (M)
+        </button>
+        <div id="layer-modal" class="layer-modal">
+          <div class="layer-modal-box">
+            <h3>Modal layer</h3>
+            <p>
+              Try the player keys — nothing happens. Press
+              <strong>Esc</strong> to close.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="demo">
         <h2>Listening on an input element</h2>
         <div class="instructions">
           Instructions: Click inside the input to focus. Then use up and down

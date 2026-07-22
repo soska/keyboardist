@@ -4,9 +4,6 @@ import "./styles.css";
 import "prismjs/themes/prism-okaidia.css";
 
 const listener = createListener();
-listener.setMonitor((eventName, matched) => {
-  console.log(`name: ${eventName} ${matched ? "[matched]" : "[not matched]"}`);
-});
 
 const pressKey = (keyName) => {
   const key = document.querySelector(`.key.${keyName}`);
@@ -17,7 +14,7 @@ const pressKey = (keyName) => {
 };
 
 let monitorTimeout = null;
-const monitor = (keyName) => {
+const monitor = ({ keyName }) => {
   if (monitorTimeout) {
     window.clearTimeout(monitorTimeout);
   }
@@ -38,6 +35,32 @@ listener.subscribe("Meta+Space", () => pressKey("metaspace"));
 listener.subscribe("Escape", () => pressKey("escape"));
 
 listener.setMonitor(monitor);
+
+// Layers demo: an exclusive modal layer owns the keyboard while open.
+const modalEl = document.getElementById("layer-modal");
+let popModal = null;
+
+const closeModal = () => {
+  modalEl.classList.remove("open");
+  if (popModal) {
+    popModal();
+    popModal = null;
+  }
+};
+
+const modalLayer = listener.layer(
+  "modal",
+  { escape: closeModal },
+  { exclusive: true },
+);
+
+const openModal = () => {
+  modalEl.classList.add("open");
+  popModal = modalLayer.push();
+};
+
+listener.subscribe("m", openModal);
+document.getElementById("open-modal").addEventListener("click", openModal);
 
 // Text input demo
 const input = document.getElementById("text-input");

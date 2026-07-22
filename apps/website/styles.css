@@ -66,6 +66,34 @@ h2 {
     rgba(0, 0, 0, 0.5) 0 5px 11px;
 }
 
+#open-modal {
+  display: block;
+  margin: 22px auto;
+}
+
+.layer-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.layer-modal.open {
+  display: flex;
+}
+
+.layer-modal-box {
+  background: white;
+  border-radius: 11px;
+  padding: 33px;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 11px 33px;
+}
+
 .input {
   border: 1px solid #999;
   padding: 9px 12px;
