@@ -1,0 +1,31 @@
+name: Bug report
+description: Something isn't working as documented
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Keyboardist version
+      placeholder: "3.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal code or a link to a sandbox that reproduces the issue.
+      render: javascript
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser / environment
+      placeholder: "Chrome 138, macOS"

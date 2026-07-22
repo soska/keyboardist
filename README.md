@@ -1,159 +1,51 @@
-# 🎹 Keyboardist: Declarative keyboard listener
+# 🎹 Keyboardist
 
 ![](assets/cover.png)
 
 A declarative way to add keyboard shortcuts to your browser applications.
-[Here is a simple demo](https://soska.github.io/keyboardist/docs/index.html)
-
-For using with React, there's
-[React Keyboardist](https://github.com/soska/react-keyboardist).
-
-Example:
 
 ```javascript
 import { createListener } from "keyboardist";
 
-// by default it listens to keydown
 const listener = createListener();
-
-listener.subscribe("Down", () => {
-  console.log("Pressed down");
-});
 
 listener.subscribe("Shift+Down", () => {
   console.log("Pressed Shift + down");
 });
 ```
 
-## Install
+This is the Keyboardist monorepo:
 
-Example:
+| Package | Description |
+| --- | --- |
+| [`packages/keyboardist`](packages/keyboardist) | The [`keyboardist`](https://www.npmjs.com/package/keyboardist) npm package — docs live in its [README](packages/keyboardist/README.md) |
+| [`apps/website`](apps/website) | The demo website |
+
+For using with React, there's
+[React Keyboardist](https://github.com/soska/react-keyboardist).
+
+## Development
+
+Requires Node 24 and [pnpm](https://pnpm.io):
 
 ```sh
-npm install keyboardist
+pnpm install
+pnpm check   # lint + typecheck + test + build
 ```
 
-## Usage
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
 
-The `Keyboardist` constructor returns a listener object that has only one
-method: `subscribe`.
+## Releases
 
-`subscribe` accepts two arguments: a key or key combination and a method that
-will be called when that key (or key combination) is triggered by the user.
+Versioning and publishing are automated with
+[Changesets](https://github.com/changesets/changesets); the changelog lives in
+[`packages/keyboardist/CHANGELOG.md`](packages/keyboardist/CHANGELOG.md) once
+the first automated release lands.
 
-Example:
+The pre-monorepo 2.x state of this repository is preserved on the
+[`v2` branch](https://github.com/soska/keyboardist/tree/v2) and the
+`archive/v2-final` tag.
 
-```javascript
-import { createListener } from "keyboardist";
+## License
 
-const listener = new createListener();
-
-const keySubscription = listener.subscribe("Slash", () => {
-  focusSearch();
-});
-```
-
-The object returned by `subscribe` has an `unsubscribe` method.
-
-```javascript
-// create a subscription
-const keySubscription = listener.subscribe("Slash", () => {
-  focusSearch();
-});
-
-// remove the subscription
-keySubscription.unsubscribe();
-```
-
-## Multiple listeners for a Key
-
-You can add multiple listeners for the same key, and they will be executed
-starting from the last one.
-
-```javascript
-// create a subscription
-
-listener.subscribe("Space", () => {
-  console.log("A");
-});
-
-listener.subscribe("Space", () => {
-  console.log("B");
-});
-
-listener.subscribe("Space", () => {
-  console.log("C");
-});
-
-// the console will log 'C', then 'B', then 'A' when the spacebr is pressed.
-```
-
-## Key Monitor
-
-Keyboardist's event listener has a `setMonitor` method that let's you set a
-function that will monitor all key events. You can either pass `true` to use the
-default built-in monitor or pass a function.
-
-Default monitor is useful in development when you don't know the correct key
-name you want to use.
-
-```javascript
-const listener = new Keyboardist();
-// ue the default monitor
-listener.setMonitor(true);
-
-// will show the key names / combination as you type them. For example:
-// `:keyboard event: KeyA`
-// `:keyboard event: Slash`
-// `:keyboard event: Shift+Space`
-```
-
-You can also pass a custom function that accepts three parameters: `keyName`,
-`matched` which is true if there's at least a listener for that key, and the
-`originalEvent` (which has already been _preventDefaulted_ at this point).
-
-```javascript
-const listener = new Keyboardist();
-// ue the default monitor
-listener.setMonitor((keyName, matched, originalEvent) => {
-  document.getElementById("monitor").innerHTML = `You pressed ${keyName}`;
-});
-```
-
-## Other events
-
-By default, the listener listens to `keydown` events, but you can pass `keyup`
-as an argument to `Keyboardist` to use that event instead
-
-```javascript
-const downListener = createListener();
-const upListener = Keyboardist("keyup");
-
-downListener.subscribe("a", () => {
-  console.log("Just pressed the A key");
-});
-
-upListener.subscribe("a", () => {
-  console.log("Just released the A key");
-});
-```
-
-## Stop listening
-
-Internally `createListener` attaches only one event listener to your document to
-listen to your keystrokes. If you ever want to remove that listener you can call
-`stopListening` on the listener instance.
-
-```javascript
-const listener = createListener();
-
-listener.subscribe("a", () => {
-  console.log("Just pressed the A key");
-});
-
-// Remove the event listener from the document
-listener.stopListening();
-
-// Reattach it again:
-listener.startListening();
-```
+MIT © [Armando Sosa](https://armandososa.org)

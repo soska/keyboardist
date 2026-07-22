@@ -1,5 +1,5 @@
-.DS_Store
-*.log
 node_modules
 dist
-demo
+coverage
+*.log
+.DS_Store
