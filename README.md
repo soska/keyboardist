@@ -24,10 +24,8 @@ This is the Keyboardist monorepo:
 | Package | Description |
 | --- | --- |
 | [`packages/keyboardist`](packages/keyboardist) | The [`keyboardist`](https://www.npmjs.com/package/keyboardist) npm package — docs live in its [README](packages/keyboardist/README.md) |
+| [`packages/react-keyboardist`](packages/react-keyboardist) | [`react-keyboardist`](https://www.npmjs.com/package/react-keyboardist) — React hooks and components, RSC-safe |
 | [`apps/website`](apps/website) | The demo website |
-
-For using with React, there's
-[React Keyboardist](https://github.com/soska/react-keyboardist).
 
 ## Development
 

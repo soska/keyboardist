@@ -1,0 +1,67 @@
+{
+  "name": "react-keyboardist",
+  "version": "2.0.2",
+  "description": "React hooks and components for keyboardist — declarative keyboard shortcuts with layers, RSC-safe",
+  "author": "Armando Sosa <arm.sosa@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "keyboard",
+    "shortcuts",
+    "hotkeys",
+    "hooks"
+  ],
+  "homepage": "https://github.com/soska/keyboardist",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soska/keyboardist.git",
+    "directory": "packages/react-keyboardist"
+  },
+  "bugs": "https://github.com/soska/keyboardist/issues",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check:publish": "publint && attw --pack . --profile esm-only && node --input-type=module -e \"import{readFileSync}from'node:fs';if(!readFileSync('dist/index.js','utf8').startsWith('\\\"use client\\\"')&&!readFileSync('dist/index.js','utf8').startsWith(\\\"'use client'\\\")){console.error('missing use client directive');process.exit(1)}\""
+  },
+  "dependencies": {
+    "keyboardist": "workspace:^"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.17",
+    "happy-dom": "^20.11.1",
+    "publint": "^0.3.21",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tsdown": "^0.22.13",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}

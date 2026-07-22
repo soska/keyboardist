@@ -1,5 +1,6 @@
 import { createListener } from "keyboardist";
 import { highlight, languages } from "prismjs";
+import { mountReactDemo } from "./react-demo";
 import "./styles.css";
 import "prismjs/themes/prism-okaidia.css";
 
@@ -28,7 +29,9 @@ const monitor = ({ keyName, matched, layer }) => {
   }, 900);
 };
 
-listener.setMonitor(monitor);
+// The React island owns the listener's single monitor slot and forwards
+// events to our vanilla monitor display (see react-demo.tsx).
+mountReactDemo(document.getElementById("react-demo"), { onMonitor: monitor });
 
 // The demo keys live on a "player" layer, registered as a map.
 // Key names are the friendly canonical spellings.
