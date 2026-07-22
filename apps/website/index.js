@@ -13,30 +13,40 @@ const pressKey = (keyName) => {
   }, 120);
 };
 
+// The structured monitor reports the canonical key name and which layer
+// (if any) claimed the key.
 let monitorTimeout = null;
-const monitor = ({ keyName }) => {
+const monitor = ({ keyName, matched, layer }) => {
   if (monitorTimeout) {
     window.clearTimeout(monitorTimeout);
   }
-  const key = document.querySelector(`.monitor`);
-  key.innerHTML = `Pressed [ ${keyName} ]`;
+  const el = document.querySelector(".monitor");
+  const detail = matched ? `matched in "${layer}"` : "no match";
+  el.innerHTML = `Pressed [ ${keyName} ] <small>${detail}</small>`;
   monitorTimeout = window.setTimeout(() => {
-    key.innerHTML = "press any key";
-  }, 500);
+    el.innerHTML = "press any key";
+  }, 900);
 };
-
-listener.subscribe("Space", () => pressKey("space"));
-listener.subscribe("Down", () => pressKey("down"));
-listener.subscribe("Up", () => pressKey("up"));
-listener.subscribe("Left", () => pressKey("left"));
-listener.subscribe("Right", () => pressKey("right"));
-listener.subscribe("Shift+Space", () => pressKey("shiftspace"));
-listener.subscribe("Meta+Space", () => pressKey("metaspace"));
-listener.subscribe("Escape", () => pressKey("escape"));
 
 listener.setMonitor(monitor);
 
-// Layers demo: an exclusive modal layer owns the keyboard while open.
+// The demo keys live on a "player" layer, registered as a map.
+// Key names are the friendly canonical spellings.
+const player = listener.layer("player", {
+  space: () => pressKey("space"),
+  down: () => pressKey("down"),
+  up: () => pressKey("up"),
+  left: () => pressKey("left"),
+  right: () => pressKey("right"),
+  "shift+space": () => pressKey("shiftspace"),
+  "meta+space": () => pressKey("metaspace"),
+  escape: () => pressKey("escape"),
+});
+
+player.push();
+
+// Layers demo: an exclusive modal layer owns the keyboard while open —
+// the player keys above go inert until the modal pops.
 const modalEl = document.getElementById("layer-modal");
 let popModal = null;
 
@@ -62,7 +72,8 @@ const openModal = () => {
 listener.subscribe("m", openModal);
 document.getElementById("open-modal").addEventListener("click", openModal);
 
-// Text input demo
+// Text input demo: a listener attached to an input element receives
+// keys even while typing in it.
 const input = document.getElementById("text-input");
 const inputListener = createListener("keydown", input);
 
@@ -84,9 +95,9 @@ const counterUpdate = () => (input.value = val);
 
 counterUpdate();
 
-inputListener.subscribe("Down", counterDown);
-inputListener.subscribe("Up", counterUp);
-inputListener.subscribe("Escape", counterReset);
+inputListener.subscribe("down", counterDown);
+inputListener.subscribe("up", counterUp);
+inputListener.subscribe("escape", counterReset);
 
 const code = `
 /*
@@ -99,70 +110,75 @@ const code = `
 // import the library
 import { createListener } from 'keyboardist';
 
-
-// ## Global listener demo
-// --------------------------
-
 // creates a listener, by default it listens to 'keydown' events.
 const listener = createListener();
 
-// triggers the key animation on screen
-const pressKey = keyName => {
-  const key = document.querySelector(\`.key.$\{keyName}\`);
-  key.classList.add('pressed');
-  window.setTimeout(() => {
-    key.classList.remove('pressed');
-  }, 120);
-};
 
-// let's create a monitor to show every key press
-const monitor = keyName => {
-  const key = document.querySelector(\`.monitor\`);
-  key.innerHTML = \`Pressed [ $\{keyName} ]\`;
-  window.setTimeout(() => {
-    key.innerHTML = 'press any key';
-  }, 500);
-};
+// ## Player demo — a layer registered as a map
+// --------------------------
 
-//let's create the listeners
-listener.subscribe('Space', () => pressKey('space'));
-listener.subscribe('Down', () => pressKey('down'));
-listener.subscribe('Up', () => pressKey('up'));
-listener.subscribe('Left', () => pressKey('left'));
-listener.subscribe('Right', () => pressKey('right'));
-listener.subscribe('Shift+space', () => pressKey('shiftspace'));
-listener.subscribe('Escape', () => pressKey('escape'));
+// Key names are friendly and case-insensitive: 'shift+space',
+// 'Shift + Space' and the raw 'Shift+Space' code all match the same key.
+const player = listener.layer('player', {
+  'space': () => pressKey('space'),
+  'up': () => pressKey('up'),
+  'down': () => pressKey('down'),
+  'left': () => pressKey('left'),
+  'right': () => pressKey('right'),
+  'shift+space': () => pressKey('shiftspace'),
+  'meta+space': () => pressKey('metaspace'),
+  'escape': () => pressKey('escape'),
+});
 
-// set the monitor function
-listener.setMonitor(monitor);
+// layers are inert until pushed onto the stack
+player.push();
+
+
+// ## Modal demo — an exclusive layer owns the keyboard
+// --------------------------
+
+// While this layer is on top of the stack, its bindings win and —
+// because it's exclusive — every unmatched key goes inert, so all
+// the player shortcuts are disabled while the modal is open.
+const modal = listener.layer('modal', {
+  escape: closeModal,
+}, { exclusive: true });
+
+let popModal = null;
+
+function openModal() {
+  showModalUi();
+  popModal = modal.push();   // modal takes the keyboard
+}
+
+function closeModal() {
+  hideModalUi();
+  popModal?.();              // player gets it back
+}
+
+listener.subscribe('m', openModal);
+
+
+// ## Monitor — observe every key event
+// --------------------------
+
+// The monitor receives the canonical key name and the winning layer.
+listener.setMonitor(({ keyName, matched, layer }) => {
+  console.log(keyName, matched ? \`matched in $\{layer}\` : 'no match');
+});
 
 
 // ## Text input demo
 // --------------------------
+
+// Listeners attached to an editable element keep receiving keys
+// while you type in it.
 const input = document.getElementById('text-input');
 const inputListener = createListener('keydown', input);
 
-let val = 0;
-const counterUp = () => {
-  val++;
-  counterUpdate();
-};
-const counterDown = () => {
-  val--;
-  counterUpdate();
-};
-const counterReset = () => {
-  val = 0;
-  counterUpdate();
-};
-
-const counterUpdate = () => (input.value = val);
-
-counterUpdate();
-
-inputListener.subscribe('Down', counterDown);
-inputListener.subscribe('Up', counterUp);
-inputListener.subscribe('Escape', counterReset);
+inputListener.subscribe('down', () => counter.decrement());
+inputListener.subscribe('up', () => counter.increment());
+inputListener.subscribe('escape', () => counter.reset());
 
 
 `;
