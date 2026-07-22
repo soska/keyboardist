@@ -19,6 +19,18 @@ const modal = listener.layer("modal", { escape: close }, { exclusive: true });
 const pop = modal.push();
 ```
 
+## Why
+
+Anyone can write one `keydown` listener. What accumulates after that —
+canonical key names instead of modifier-flag chains, staying quiet while the
+user types into inputs and contenteditables, preventing default only on real
+matches, and above all **layers** (a modal or command palette taking over the
+keyboard and handing it back cleanly, even when overlapping) — is the code
+every app ends up writing badly under deadline. Keyboardist is that code,
+extracted, tested, ~3 kB gzipped with zero dependencies. The longer
+version is in the
+[package README](packages/keyboardist/README.md#why-not-just-addeventlistener).
+
 This is the Keyboardist monorepo:
 
 | Package | Description |
