@@ -1,0 +1,105 @@
+/*
+ * Demo-area styles — the plain-CSS escape hatch alongside Tailwind.
+ * The gold 3D keys are the original Keyboardist demo styles, ported
+ * verbatim; they're the brand.
+ */
+
+.monitor {
+  padding: 22px;
+  text-align: center;
+  color: #c8c8c8;
+  font-size: 28px;
+}
+
+.monitor small {
+  display: block;
+  font-size: 14px;
+  color: #bbb;
+}
+
+.key-rows {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.key {
+  --shineColor: white;
+  --bgColor: gold;
+  --depthColor: goldenrod;
+  --depthSize: 9px;
+  --pressedDepthSize: 0;
+
+  --borderColor: rgba(0, 0, 0, 0.9);
+  --borderSize: 3px;
+  --shadowColor: rgba(0, 0, 0, 0.5);
+  --shadowOffset: 1rem;
+
+  --_depthSize: var(--depthSize);
+
+  font-size: 1.5rem;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  background: var(--bgColor);
+  box-shadow:
+    var(--shineColor) 0 3px 4px inset,
+    var(--depthColor) 0 var(--_depthSize) 0,
+    var(--borderColor) 0 0 0 var(--borderSize),
+    var(--borderColor) 0 var(--_depthSize) 0 var(--borderSize),
+    var(--shadowColor) 0 var(--shadowOffset) 0.5rem;
+  color: var(--borderColor);
+  text-shadow: var(--shineColor) 0 1px 1px;
+
+  transition-property: all;
+  transition-duration: 0.08s;
+  transition-timing-function: ease-in-out;
+  font-weight: 600;
+  corner-shape: squircle;
+}
+
+.key.pressed {
+  transform: translate3d(0, var(--depthSize), 0);
+  --_depthSize: var(--pressedDepthSize);
+  --shadowOffset: 0.25rem;
+  --shineColor: rgba(0, 0, 0, 0.2);
+}
+
+.layer-modal {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.layer-modal-box {
+  background: white;
+  border-radius: 11px;
+  padding: 33px;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 11px 33px;
+}
+
+/* Dark mode overrides — keyed off the `dark` class on <html>. */
+.dark .layer-modal-box {
+  background: #18181b;
+}
+
+.dark .monitor {
+  color: #52525b;
+}
+
+.dark .monitor small {
+  color: #71717a;
+}

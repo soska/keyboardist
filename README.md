@@ -44,6 +44,7 @@ Requires Node 24 and [pnpm](https://pnpm.io):
 
 ```sh
 pnpm install
+pnpm dev     # run the demo website at http://localhost:5100
 pnpm check   # lint + typecheck + test + build
 ```
 

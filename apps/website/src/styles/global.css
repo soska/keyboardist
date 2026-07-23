@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Manual dark mode: the `dark` class on <html> drives the dark: variant
+ * (set pre-paint by the inline script in index.html, toggled by the
+ * header switch). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* keep hash anchors clear of the sticky header */
+  scroll-padding-top: 5rem;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-white text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-300;
+}
+
+/* Shiki emits a styled <pre>; the fallback (pre-highlight) <pre> matches its
+ * github-dark background so the swap doesn't flash. */
+.code-block pre {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  background-color: #24292e;
+  color: #e1e4e8;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
