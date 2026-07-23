@@ -10,11 +10,17 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
     "typescript": "^7.0.2",
     "vite": "^8.1.5"
   },
   "dependencies": {
     "keyboardist": "workspace:^",
-    "prismjs": "^1.30.0"
+    "prismjs": "^1.30.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-keyboardist": "workspace:^"
   }
 }

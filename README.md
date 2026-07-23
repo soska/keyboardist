@@ -9,20 +9,35 @@ import { createListener } from "keyboardist";
 
 const listener = createListener();
 
-listener.subscribe("Shift+Down", () => {
+listener.subscribe("shift+down", () => {
   console.log("Pressed Shift + down");
 });
+
+// bindings can live on stackable layers — a modal can own the
+// keyboard and hand it back when it closes
+const modal = listener.layer("modal", { escape: close }, { exclusive: true });
+const pop = modal.push();
 ```
+
+## Why
+
+Anyone can write one `keydown` listener. What accumulates after that —
+canonical key names instead of modifier-flag chains, staying quiet while the
+user types into inputs and contenteditables, preventing default only on real
+matches, and above all **layers** (a modal or command palette taking over the
+keyboard and handing it back cleanly, even when overlapping) — is the code
+every app ends up writing badly under deadline. Keyboardist is that code,
+extracted, tested, ~3 kB gzipped with zero dependencies. The longer
+version is in the
+[package README](packages/keyboardist/README.md#why-not-just-addeventlistener).
 
 This is the Keyboardist monorepo:
 
 | Package | Description |
 | --- | --- |
 | [`packages/keyboardist`](packages/keyboardist) | The [`keyboardist`](https://www.npmjs.com/package/keyboardist) npm package — docs live in its [README](packages/keyboardist/README.md) |
+| [`packages/react-keyboardist`](packages/react-keyboardist) | [`react-keyboardist`](https://www.npmjs.com/package/react-keyboardist) — React hooks and components, RSC-safe |
 | [`apps/website`](apps/website) | The demo website |
-
-For using with React, there's
-[React Keyboardist](https://github.com/soska/react-keyboardist).
 
 ## Development
 

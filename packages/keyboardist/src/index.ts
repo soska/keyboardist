@@ -1,38 +1,63 @@
 import getKeyEventName from "./get-key-event-name";
+import isEditableTarget from "./is-editable-target";
 import isEventModifier from "./is-event-modifier";
-import isInputElement from "./is-input-element";
-import isInputEvent from "./is-input-event";
+import {
+  type BindingInfo,
+  type BindingMap,
+  type Layer,
+  type LayerOptions,
+  LayerStack,
+  type Subscription,
+  type SubscriptionCallback,
+} from "./layer";
+import { normalizeKeyName } from "./normalize-key-name";
+
+export type {
+  BindingInfo,
+  BindingMap,
+  Layer,
+  LayerOptions,
+  PopHandle,
+  Subscription,
+  SubscriptionCallback,
+} from "./layer";
+export { expandKeyAliases, normalizeKeyName } from "./normalize-key-name";
 
 export type KeyboardEventName = "keydown" | "keyup";
 
-// biome-ignore lint/suspicious/noConfusingVoidType: callbacks may return nothing; `undefined` would reject void-returning functions
-export type SubscriptionCallback = (event: KeyboardEvent) => boolean | void;
-
-export type MonitorCallback = (
-  eventName: string,
-  matched: boolean,
-  event: KeyboardEvent,
-) => void;
-
-export interface Subscription {
-  unsubscribe: () => void;
+export interface MonitorInfo {
+  /** Canonical normalized key name, e.g. `shift+up` */
+  keyName: string;
+  /** True when a layer had a binding for this key */
+  matched: boolean;
+  /** Name of the winning layer, or null when nothing matched */
+  layer: string | null;
+  event: KeyboardEvent;
 }
+
+export type MonitorCallback = (info: MonitorInfo) => void;
 
 export interface KeyboardistListener {
   subscribe: (name: string, callback: SubscriptionCallback) => Subscription;
+  layer: (name: string, bindings?: BindingMap, options?: LayerOptions) => Layer;
+  activeLayers: () => string[];
+  getBindings: () => BindingInfo[];
   setMonitor: (monitor?: MonitorCallback | boolean) => void;
   startListening: () => void;
   stopListening: () => void;
 }
 
-const defaultMonitor: MonitorCallback = (eventName) => {
-  console.log(":keyboard event:", eventName);
+const defaultMonitor: MonitorCallback = ({ keyName }) => {
+  console.log(":keyboard event:", keyName);
 };
 
-// Subscription names are lowercased and spaces removed so 'Shift + Space',
-// 'Shift+Space' and 'shift+space' are all equivalent.
-function normalize(name: string) {
-  return name.toLowerCase().replace(/\s/g, "");
+// Accepts both native events and React-style synthetic events
+// (which keep the DOM event under `nativeEvent`).
+function eventTarget(event: KeyboardEvent): unknown {
+  return (
+    event.target ??
+    (event as { nativeEvent?: { target?: unknown } }).nativeEvent?.target
+  );
 }
 
 export function createListener(
@@ -45,15 +70,12 @@ export function createListener(
   }
 
   const target = element ?? window.document;
-
-  // Subscriptions are scoped to this listener instance. Callbacks run in
-  // LIFO order (last subscribed runs first); returning false from a
-  // callback stops propagation to earlier subscriptions.
-  const subscriptions = new Map<string, SubscriptionCallback[]>();
+  const layers = new LayerStack();
   let monitor: MonitorCallback | null = null;
 
-  // ignore input events, except when the listener is attached to an input.
-  const ignoreInputEvents = !isInputElement(target);
+  // ignore keystrokes while typing into form fields or contenteditable
+  // regions — except when the listener is attached to such an element.
+  const ignoreEditableTargets = !isEditableTarget(target);
 
   function handleKeyEvent(event: Event) {
     const keyboardEvent = event as KeyboardEvent;
@@ -62,50 +84,37 @@ export function createListener(
       return;
     }
 
-    if (ignoreInputEvents && isInputEvent(keyboardEvent)) {
+    if (ignoreEditableTargets && isEditableTarget(eventTarget(keyboardEvent))) {
       return;
     }
 
-    const eventName = getKeyEventName(keyboardEvent);
-    const listeners = subscriptions.get(normalize(eventName)) ?? [];
+    const keyName = normalizeKeyName(getKeyEventName(keyboardEvent));
+    const result = layers.match(keyName);
 
     if (monitor) {
-      monitor(eventName, listeners.length > 0, keyboardEvent);
+      monitor({
+        keyName,
+        matched: result.type === "match",
+        layer: result.type === "match" ? result.layerName : null,
+        event: keyboardEvent,
+      });
     }
 
-    if (listeners.length > 0) {
-      keyboardEvent.preventDefault();
+    if (result.type !== "match") {
+      return;
     }
 
+    keyboardEvent.preventDefault();
+
+    // Callbacks run in LIFO order (last subscribed runs first); returning
+    // false from a callback stops propagation to earlier subscriptions.
+    const { listeners } = result;
     for (let i = listeners.length - 1; i >= 0; i--) {
       const propagate = listeners[i]?.(keyboardEvent);
       if (propagate === false) {
         break;
       }
     }
-  }
-
-  function subscribe(
-    name: string,
-    callback: SubscriptionCallback,
-  ): Subscription {
-    const key = normalize(name);
-    const listeners = subscriptions.get(key) ?? [];
-    listeners.push(callback);
-    subscriptions.set(key, listeners);
-
-    return {
-      unsubscribe() {
-        const current = subscriptions.get(key);
-        if (!current) {
-          return;
-        }
-        const index = current.indexOf(callback);
-        if (index !== -1) {
-          current.splice(index, 1);
-        }
-      },
-    };
   }
 
   function setMonitor(nextMonitor: MonitorCallback | boolean = false) {
@@ -128,5 +137,13 @@ export function createListener(
 
   startListening();
 
-  return { subscribe, setMonitor, startListening, stopListening };
+  return {
+    subscribe: layers.base.subscribe,
+    layer: (name, bindings, options) => layers.define(name, bindings, options),
+    activeLayers: () => layers.activeLayers(),
+    getBindings: () => layers.getBindings(),
+    setMonitor,
+    startListening,
+    stopListening,
+  };
 }

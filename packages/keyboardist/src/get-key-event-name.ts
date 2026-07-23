@@ -8,6 +8,9 @@ const getKeyEventName = (event: KeyboardEvent): string => {
 
   if ("code" in event) {
     // modern browsers
+    if (!event.code) {
+      return "unknown";
+    }
     keyName = Object.hasOwn(keyMap, event.code)
       ? keyMap[event.code as KeyMapKey]
       : event.code;

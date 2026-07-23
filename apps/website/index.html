@@ -29,9 +29,11 @@
         <h1>🎹 Keyboardist Demo</h1>
       </div>
       <div class="demo">
-        <h2>Global Listener</h2>
+        <h2>The "player" layer</h2>
         <div class="instructions">
-          Instructions: Press the key or key combinations to activate the UI
+          Instructions: Press the key or key combinations to activate the UI.
+          These bindings live on a layer called <strong>player</strong> —
+          watch the monitor name it.
         </div>
         <div class="monitor">press any key</div>
         <div class="keys">
@@ -44,6 +46,39 @@
           <div class="metaspace key">Meta+Space</div>
           <div class="escape key">Esc</div>
         </div>
+      </div>
+      <div class="demo">
+        <h2>Layers</h2>
+        <div class="instructions">
+          Instructions: Press <strong>M</strong> (or the button) to open a
+          modal. While it's open, an <em>exclusive</em> layer owns the
+          keyboard: the keys above go inert, and <strong>Esc</strong> closes
+          the modal and hands the keyboard back.
+        </div>
+        <button type="button" id="open-modal" class="btn btn-primary">
+          Open modal (M)
+        </button>
+        <div id="layer-modal" class="layer-modal">
+          <div class="layer-modal-box">
+            <h3>Modal layer</h3>
+            <p>
+              Try the player keys — nothing happens. Press
+              <strong>Esc</strong> to close.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="demo">
+        <h2>React</h2>
+        <div class="instructions">
+          This section is a React island using
+          <a href="https://www.npmjs.com/package/react-keyboardist"
+            >react-keyboardist</a
+          >
+          — hooks and components over the same shared listener as the vanilla
+          demos above.
+        </div>
+        <div id="react-demo"></div>
       </div>
       <div class="demo">
         <h2>Listening on an input element</h2>

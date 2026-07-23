@@ -29,6 +29,50 @@ npm install keyboardist
 
 Keyboardist is published as an ES module.
 
+## Why not just addEventListener?
+
+For one shortcut, you don't need a library:
+
+```javascript
+document.addEventListener("keydown", (e) => {
+  if (e.key === "k" && e.metaKey) openPalette();
+});
+```
+
+That's fine — until you add the second shortcut, and the third, and a modal.
+Keyboardist exists because the code above quietly grows five hard problems,
+and every app ends up hand-rolling the same solutions:
+
+- **Key naming.** `event.key` vs `event.code`, layout quirks, modifier
+  combinations, and the `if (e.shiftKey && !e.metaKey && ...)` chains that
+  come with them. Keyboardist gives every combination one canonical,
+  writable name — `"shift+up"`, `"cmd+k"` — and matching is just a map
+  lookup.
+- **Typing vs shortcuts.** Raw listeners fire while the user types into an
+  input, a textarea, or a contenteditable editor. Everyone discovers this in
+  production. Keyboardist ignores editable targets by default (and lets you
+  attach to an input deliberately when that's what you want).
+- **preventDefault discipline.** Swallow too much and you break the browser;
+  too little and the page scrolls when Space was your play button.
+  Keyboardist prevents default only when a binding actually matched.
+- **Modes and modals.** The genuinely hard one. The moment a modal, command
+  palette, or "mode" needs its own keys, you're building a priority system:
+  who wins, what's disabled, and how everything is restored when it closes —
+  including when two modals overlap and close out of order. That's
+  [layers](#layers), and it's the reason this library exists: the ad-hoc
+  version of this (save the old handler, restore it in a closure) is exactly
+  where hand-rolled implementations grow bugs.
+- **Lifecycle.** Subscriptions that clean up after themselves (`unsubscribe`,
+  `using`), multiple handlers per key with predictable order and
+  stop-propagation, and a [monitor](#key-monitor) so you can see what the
+  keyboard is doing instead of sprinkling `console.log` into a raw handler.
+
+All of that for ~3 kB gzipped, zero dependencies, one `addEventListener`
+per listener under the hood, and `false` instead of a crash on the server.
+If your app has one shortcut, keep the raw listener. The day it has three
+and a modal, this is the code you were going to write anyway — already
+tested.
+
 ## Usage
 
 `createListener` returns a listener object. In non-browser environments (e.g.
@@ -49,8 +93,25 @@ const keySubscription = listener.subscribe("Slash", () => {
 });
 ```
 
-Key names are matched case-insensitively and spaces are ignored, so
-`"Shift+Space"`, `"shift+space"`, and `"Shift + Space"` are all equivalent.
+### Key names
+
+Friendly names are canonical, and raw `event.code` spellings normalize to the
+same key — all of these match the same binding:
+
+| You write | Canonical name |
+| --- | --- |
+| `a`, `KeyA`, `keya` | `a` |
+| `up`, `ArrowUp` | `up` |
+| `1`, `Digit1` | `1` (`numpad1` stays distinct) |
+| `shift+up`, `Shift + ArrowUp` | `shift+up` |
+| `cmd+k`, `Meta+K`, `command+k` | `meta+k` |
+| `ctrl+shift+p`, `shift+control+p` | `shift+ctrl+p` |
+
+Case and spaces are ignored; modifiers always normalize to the order
+alt, shift, ctrl, meta. A comma binds one handler to several keys:
+`subscribe("j,k", fn)` fires for both. If you're unsure of a key's name, use
+the [monitor](#key-monitor). The normalizer is exported as
+`normalizeKeyName()` if you need it.
 
 The object returned by `subscribe` has an `unsubscribe` method:
 
@@ -86,6 +147,45 @@ listener.subscribe("Space", () => {
 // the console will log 'C', then 'B', then 'A' when the spacebar is pressed.
 ```
 
+## Layers
+
+Bindings can live on named **layers** that stack. The topmost layer with a
+binding for a key wins and shadows the layers below it; keys that don't match
+fall through. This is how you give a modal its own keyboard without tearing
+down the rest of the app:
+
+```javascript
+const kb = createListener();
+
+// base bindings — always at the bottom of the stack
+kb.subscribe("slash", focusSearch);
+
+// a named layer with map registration; commas bind aliases
+const player = kb.layer("player", {
+  space: togglePlay,
+  "j,k": step,
+  "shift+up": volumeUp,
+});
+player.push(); // player bindings are now live
+
+// an exclusive layer: unmatched keys go inert instead of falling through,
+// so every player shortcut is disabled while the modal is open
+const modal = kb.layer("modal", { escape: closeModal }, { exclusive: true });
+
+const pop = modal.push(); // modal now owns the keyboard
+// ...when the modal closes:
+pop(); // player (and base) bindings are live again
+```
+
+Popping is order-independent: if two modals overlap, popping the lower one
+leaves the upper one exactly where it is. Re-pushing an active layer moves it
+to the top. Layers also have `subscribe(key, fn)`, `bind(map)` (returns one
+subscription for the whole map), `pop()`, `isActive()`, and `dispose()`.
+
+Inspect the stack at runtime with `kb.activeLayers()` (names, top to bottom,
+ending in `"base"`) and `kb.getBindings()` (every binding with its layer and
+active state).
+
 ## Key monitor
 
 The listener has a `setMonitor` method that lets you set a function that will
@@ -103,17 +203,17 @@ const listener = createListener();
 listener.setMonitor(true);
 
 // will show the key names / combination as you type them. For example:
-// `:keyboard event: KeyA`
-// `:keyboard event: Slash`
-// `:keyboard event: Shift+Space`
+// `:keyboard event: a`
+// `:keyboard event: slash`
+// `:keyboard event: shift+space`
 ```
 
-A custom monitor function receives three arguments: the `keyName`, `matched`
-(true if there's at least one subscription for that key), and the original
-`KeyboardEvent`.
+A custom monitor receives a single object: `keyName` (canonical name),
+`matched` (true if a binding won), `layer` (the winning layer's name, or
+`null`), and the original `event`.
 
 ```javascript
-listener.setMonitor((keyName, matched, originalEvent) => {
+listener.setMonitor(({ keyName, matched, layer, event }) => {
   document.getElementById("monitor").innerHTML = `You pressed ${keyName}`;
 });
 ```
@@ -171,6 +271,19 @@ listener.stopListening();
 listener.startListening();
 ```
 
+## `using` support
+
+Subscriptions and layer push-handles implement `[Symbol.dispose]`, so they
+work with explicit resource management:
+
+```typescript
+{
+  using sub = kb.subscribe("slash", focusSearch);
+  using modalSession = modal.push();
+  // ...
+} // automatically unsubscribed and popped here
+```
+
 ## TypeScript
 
 Keyboardist ships its own type definitions:
@@ -179,6 +292,8 @@ Keyboardist ships its own type definitions:
 import {
   createListener,
   type KeyboardistListener,
+  type Layer,
+  type MonitorInfo,
   type Subscription,
 } from "keyboardist";
 ```
