@@ -3,7 +3,7 @@ import {
   createListener,
   type KeyboardEventName,
 } from "keyboardist";
-import { type RefObject, useEffect } from "react";
+import { type RefObject, useEffect, useState } from "react";
 import { keySignatureOf } from "./use-key-bindings";
 import { useLatest } from "./use-latest";
 
@@ -24,10 +24,16 @@ export function useElementKeyBindings(
   const { event = "keydown" } = options;
   const bindingsRef = useLatest(bindings);
   const keySignature = keySignatureOf(bindings);
+  const [element, setElement] = useState<Element | null>(null);
+
+  useEffect(() => {
+    if (element !== ref.current) {
+      setElement(ref.current);
+    }
+  });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies(keySignature): resubscribes when the key set changes; callbacks are read through bindingsRef
   useEffect(() => {
-    const element = ref.current;
     if (!element) {
       return;
     }
@@ -48,5 +54,5 @@ export function useElementKeyBindings(
       }
       listener.stopListening();
     };
-  }, [ref, event, keySignature, bindingsRef]);
+  }, [element, event, keySignature, bindingsRef]);
 }

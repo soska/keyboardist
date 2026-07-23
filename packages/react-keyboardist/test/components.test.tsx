@@ -78,4 +78,24 @@ describe("<KeyboardInput>", () => {
     );
     expect(container.querySelector("textarea")).not.toBe(null);
   });
+
+  test("reattaches bindings when the rendered element changes", () => {
+    const onDown = vi.fn();
+    const { container, rerender } = render(
+      <KeyboardInput bindings={{ down: onDown }} component="input" />,
+    );
+    const input = container.querySelector("input");
+    expect(input).not.toBe(null);
+    fireEvent.keyDown(input as HTMLInputElement, { code: "ArrowDown" });
+    expect(onDown).toHaveBeenCalledTimes(1);
+
+    rerender(<KeyboardInput bindings={{ down: onDown }} component="textarea" />);
+    const textarea = container.querySelector("textarea");
+    expect(textarea).not.toBe(null);
+    fireEvent.keyDown(textarea as HTMLTextAreaElement, { code: "ArrowDown" });
+    expect(onDown).toHaveBeenCalledTimes(2);
+
+    fireEvent.keyDown(input as HTMLInputElement, { code: "ArrowDown" });
+    expect(onDown).toHaveBeenCalledTimes(2);
+  });
 });

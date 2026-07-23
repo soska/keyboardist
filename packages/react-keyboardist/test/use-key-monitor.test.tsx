@@ -40,4 +40,18 @@ describe("useKeyMonitor", () => {
     expect(second).toHaveBeenCalledTimes(1);
     unmount();
   });
+
+  test("unmounting an older monitor does not clear a newer one", () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const firstHook = renderHook(() => useKeyMonitor(first));
+    const secondHook = renderHook(() => useKeyMonitor(second));
+
+    firstHook.unmount();
+    fireEvent.keyDown(document, { code: "KeyY" });
+
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
+    secondHook.unmount();
+  });
 });

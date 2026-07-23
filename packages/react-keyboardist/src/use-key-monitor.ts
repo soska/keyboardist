@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { getSharedListener } from "./shared-listener";
 import { useLatest } from "./use-latest";
 
+const monitorOwners = new WeakMap<object, symbol>();
+
 export interface UseKeyMonitorOptions {
   event?: KeyboardEventName;
 }
@@ -27,8 +29,14 @@ export function useKeyMonitor(
     if (!listener) {
       return;
     }
+    const owner = Symbol("monitor-owner");
+    monitorOwners.set(listener, owner);
     listener.setMonitor((info) => monitorRef.current?.(info));
     return () => {
+      if (monitorOwners.get(listener) !== owner) {
+        return;
+      }
+      monitorOwners.delete(listener);
       listener.setMonitor(false);
     };
   }, [event, hasMonitor, monitorRef]);
