@@ -182,6 +182,25 @@ leaves the upper one exactly where it is. Re-pushing an active layer moves it
 to the top. Layers also have `subscribe(key, fn)`, `bind(map)` (returns one
 subscription for the whole map), `pop()`, `isActive()`, and `dispose()`.
 
+### Priority
+
+When push order can't express who should win — for example when a framework
+schedules your pushes in an order you don't control — give layers a
+`priority` (default `0`). Higher-priority layers always sit above
+lower-priority ones regardless of push order; within the same priority, the
+latest push is on top, exactly like before:
+
+```javascript
+kb.layer("layout", { escape: closeSidebar }, { priority: 1 });
+kb.layer("modal", { escape: closeModal }, { priority: 3 });
+
+// no matter which order these get pushed in, modal beats layout
+```
+
+(If you use [react-keyboardist](https://www.npmjs.com/package/react-keyboardist),
+priority is derived from the component tree automatically — you shouldn't
+need to set it by hand.)
+
 Inspect the stack at runtime with `kb.activeLayers()` (names, top to bottom,
 ending in `"base"`) and `kb.getBindings()` (every binding with its layer and
 active state).

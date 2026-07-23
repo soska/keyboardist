@@ -8,8 +8,10 @@ import {
   type ElementType,
   forwardRef,
   type ReactNode,
+  useContext,
   useRef,
 } from "react";
+import { KeyboardDepthContext } from "./depth-context";
 import { useElementKeyBindings } from "./use-element-key-bindings";
 import { useKeyBindings } from "./use-key-bindings";
 import { useKeyMonitor } from "./use-key-monitor";
@@ -35,6 +37,8 @@ export interface KeyboardLayerProps {
   name?: string;
   exclusive?: boolean;
   active?: boolean;
+  /** Overrides the depth-derived stack priority */
+  priority?: number;
   event?: KeyboardEventName;
   children?: ReactNode;
 }
@@ -42,17 +46,42 @@ export interface KeyboardLayerProps {
 /**
  * Scopes the keyboard to its bindings while mounted (and `active`). Wrap a
  * modal in an exclusive layer and it owns the keyboard until it unmounts.
+ *
+ * Nested KeyboardLayers derive their stack priority from the JSX nesting:
+ * inner layers win overlapping keys, even when the whole tree mounts in a
+ * single commit (where React's child-first effect order would otherwise
+ * put the outermost layer on top).
  */
 export function KeyboardLayer({
   bindings,
   name,
   exclusive,
   active,
+  priority,
   event,
   children,
 }: KeyboardLayerProps) {
-  useKeyboardLayer(bindings, { name, exclusive, active, event });
-  return <>{children}</>;
+  const depth = useContext(KeyboardDepthContext);
+  useKeyboardLayer(bindings, { name, exclusive, active, priority, event });
+  return (
+    <KeyboardDepthContext.Provider value={depth + 1}>
+      {children}
+    </KeyboardDepthContext.Provider>
+  );
+}
+
+/**
+ * Increments the keyboard nesting depth for its children without creating
+ * a layer of its own — for hook-only users composing useKeyboardLayer
+ * across components. <KeyboardLayer> provides this automatically.
+ */
+export function KeyboardScope({ children }: { children?: ReactNode }) {
+  const depth = useContext(KeyboardDepthContext);
+  return (
+    <KeyboardDepthContext.Provider value={depth + 1}>
+      {children}
+    </KeyboardDepthContext.Provider>
+  );
 }
 
 export type KeyboardInputProps = {

@@ -19,6 +19,7 @@ export {
   type KeyboardistProps,
   KeyboardLayer,
   type KeyboardLayerProps,
+  KeyboardScope,
 } from "./components";
 export { getSharedListener } from "./shared-listener";
 export {

@@ -230,3 +230,127 @@ describe("map registration", () => {
     expect(two).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("layer priority", () => {
+  test("a higher-priority layer stays above a later plain push", () => {
+    const kb = createListenerOrThrow();
+    const modalCallback = vi.fn();
+    const layoutCallback = vi.fn();
+    const modal = kb.layer(
+      "prio-modal",
+      { Digit1: modalCallback },
+      { priority: 3 },
+    );
+    const layout = kb.layer(
+      "prio-layout",
+      { Digit1: layoutCallback },
+      { priority: 1 },
+    );
+
+    // pushed in "wrong" (React child-first) order: modal first, layout last
+    modal.push();
+    layout.push();
+
+    fireEvent.keyDown(document, { code: "Digit1" });
+    expect(modalCallback).toHaveBeenCalledTimes(1);
+    expect(layoutCallback).not.toHaveBeenCalled();
+  });
+
+  test("equal priority keeps LIFO: later push wins", () => {
+    const kb = createListenerOrThrow();
+    const first = vi.fn();
+    const second = vi.fn();
+    kb.layer("prio-eq-a", { Digit2: first }, { priority: 2 }).push();
+    kb.layer("prio-eq-b", { Digit2: second }, { priority: 2 }).push();
+
+    fireEvent.keyDown(document, { code: "Digit2" });
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(first).not.toHaveBeenCalled();
+  });
+
+  test("three layers pushed in reverse priority order sort correctly", () => {
+    const kb = createListenerOrThrow();
+    const kb3 = vi.fn();
+    const kb2 = vi.fn();
+    const kb1 = vi.fn();
+    kb.layer("prio-r3", { Digit3: kb3 }, { priority: 3 }).push();
+    kb.layer("prio-r2", { Digit3: kb2 }, { priority: 2 }).push();
+    kb.layer("prio-r1", { Digit3: kb1 }, { priority: 1 }).push();
+
+    expect(kb.activeLayers()).toEqual([
+      "prio-r3",
+      "prio-r2",
+      "prio-r1",
+      "base",
+    ]);
+    fireEvent.keyDown(document, { code: "Digit3" });
+    expect(kb3).toHaveBeenCalledTimes(1);
+    expect(kb2).not.toHaveBeenCalled();
+    expect(kb1).not.toHaveBeenCalled();
+  });
+
+  test("re-push moves to the top of its own priority band only", () => {
+    const kb = createListenerOrThrow();
+    const low = kb.layer("prio-band-low", {}, { priority: 1 });
+    const lowLater = kb.layer("prio-band-low2", {}, { priority: 1 });
+    const high = kb.layer("prio-band-high", {}, { priority: 5 });
+
+    low.push();
+    lowLater.push();
+    high.push();
+    low.push(); // re-push: tops its band, stays below high
+
+    expect(kb.activeLayers()).toEqual([
+      "prio-band-high",
+      "prio-band-low",
+      "prio-band-low2",
+      "base",
+    ]);
+  });
+
+  test("base layer stays at the bottom below priority-0 layers", () => {
+    const kb = createListenerOrThrow();
+    const baseCallback = vi.fn();
+    const layerCallback = vi.fn();
+    kb.subscribe("Digit4", baseCallback);
+    kb.layer("prio-zero", { Digit4: layerCallback }).push();
+
+    fireEvent.keyDown(document, { code: "Digit4" });
+    expect(layerCallback).toHaveBeenCalledTimes(1);
+    expect(baseCallback).not.toHaveBeenCalled();
+    expect(kb.activeLayers()).toEqual(["prio-zero", "base"]);
+  });
+
+  test("a high-priority exclusive layer swallows keys below regardless of push order", () => {
+    const kb = createListenerOrThrow();
+    const layoutCallback = vi.fn();
+    const modal = kb.layer(
+      "prio-excl-modal",
+      {},
+      { priority: 9, exclusive: true },
+    );
+    const layout = kb.layer(
+      "prio-excl-layout",
+      { Digit5: layoutCallback },
+      { priority: 1 },
+    );
+
+    modal.push();
+    layout.push(); // pushed after, but lower priority: stays below the exclusive modal
+
+    fireEvent.keyDown(document, { code: "Digit5" });
+    expect(layoutCallback).not.toHaveBeenCalled();
+  });
+
+  test("getBindings reports priority", () => {
+    const kb = createListenerOrThrow();
+    kb.layer("prio-bindings", { Digit6: vi.fn() }, { priority: 7 });
+
+    expect(kb.getBindings()).toContainEqual({
+      layer: "prio-bindings",
+      key: "6",
+      active: false,
+      priority: 7,
+    });
+  });
+});
