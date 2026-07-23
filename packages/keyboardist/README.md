@@ -3,8 +3,8 @@
 A declarative way to add keyboard shortcuts to your browser applications, with
 zero dependencies.
 
-For using with React, there's
-[React Keyboardist](https://github.com/soska/react-keyboardist).
+Using React? Hooks and components ship in the same package —
+see [`keyboardist/react`](#react).
 
 ```javascript
 import { createListener } from "keyboardist";
@@ -197,9 +197,8 @@ kb.layer("modal", { escape: closeModal }, { priority: 3 });
 // no matter which order these get pushed in, modal beats layout
 ```
 
-(If you use [react-keyboardist](https://www.npmjs.com/package/react-keyboardist),
-priority is derived from the component tree automatically — you shouldn't
-need to set it by hand.)
+(If you use [`keyboardist/react`](#react), priority is derived from the
+component tree automatically — you shouldn't need to set it by hand.)
 
 Inspect the stack at runtime with `kb.activeLayers()` (names, top to bottom,
 ending in `"base"`) and `kb.getBindings()` (every binding with its layer and
@@ -302,6 +301,88 @@ work with explicit resource management:
   // ...
 } // automatically unsubscribed and popped here
 ```
+
+## React
+
+React hooks and components ship as a subpath of this same package — one
+install, one version, RSC-safe:
+
+```jsx
+import Keyboardist, { KeyboardLayer, useKeyBindings } from "keyboardist/react";
+
+// works directly inside a Next.js server component tree — the subpath
+// ships its own "use client" boundary
+export default function Page() {
+  return (
+    <>
+      <Keyboardist bindings={{ "cmd+k": openPalette, slash: focusSearch }} />
+      <Content />
+    </>
+  );
+}
+```
+
+Requires React 18 or 19 (an *optional* peer dependency — vanilla users see
+no peer warnings).
+
+### Hooks
+
+- `useKeyBindings(map)` — global bindings for the component's lifetime.
+  Inline objects are fine: callbacks are read through refs, and
+  resubscription only happens when the set of keys changes.
+- `useKeyboardLayer(map, { exclusive, active, priority, name })` — a
+  [layer](#layers) scoped to the component: created on mount, pushed while
+  `active` (default `true`), disposed on unmount. Returns a handle with
+  `isActive()`, `push()`, `pop()`.
+- `useKeyMonitor(fn)` — observes every key event with the structured
+  [monitor](#key-monitor) payload (one monitor slot per listener; last
+  mounted wins).
+- `useElementKeyBindings(ref, map)` — a dedicated listener attached to an
+  element; bindings keep firing while the user types in it.
+
+### Components
+
+```jsx
+// global bindings, renders nothing (the classic react-keyboardist API)
+<Keyboardist bindings={{ slash: focusSearch }} monitor={logKeys} />
+
+// scope the keyboard to a subtree while it's mounted
+<KeyboardLayer bindings={{ escape: close }} exclusive>
+  <Modal />
+</KeyboardLayer>
+
+// an input with its own attached listener
+<KeyboardInput bindings={{ up: increment, down: decrement }} ref={inputRef} />
+```
+
+### Nesting is priority
+
+When layers overlap on the same key, **the innermost component wins** — the
+JSX nesting is the priority:
+
+```jsx
+<DashboardLayout>            {/* KeyboardLayer: escape → close sidebar */}
+  <Posts>                    {/* KeyboardLayer: escape → clear selection */}
+    <EditPostModal />        {/* KeyboardLayer: escape → close modal ← wins */}
+  </Posts>
+</DashboardLayout>
+```
+
+This holds even when the whole tree mounts in a single commit (React runs
+effects child-first, so without this the *outermost* layer would land on top
+of the stack). Priority is derived from `<KeyboardLayer>` nesting via
+context, so it flows through portals too: a `createPortal` modal keeps the
+priority of its place in the JSX tree, not the DOM. Hook-only users can add
+a nesting level with `<KeyboardScope>`, and an explicit `priority`
+prop/option overrides the derived depth.
+
+### Server-side rendering & React Server Components
+
+- The `keyboardist/react` bundle starts with `'use client'`, so importing
+  any component from a server component automatically creates the client
+  boundary.
+- Listeners are created lazily on first client-side effect — importing the
+  package never touches `window`, and rendering on the server is a no-op.
 
 ## TypeScript
 

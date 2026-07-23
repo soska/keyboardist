@@ -2,7 +2,7 @@ import {
   createListener,
   type KeyboardEventName,
   type KeyboardistListener,
-} from "keyboardist";
+} from "../index";
 
 // Lazily-created shared listeners, one per event type. Creation only ever
 // happens inside effects (client-side), never at module scope, so importing

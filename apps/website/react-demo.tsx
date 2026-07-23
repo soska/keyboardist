@@ -1,11 +1,11 @@
 import type { MonitorCallback } from "keyboardist";
-import { useState } from "react";
-import { createRoot } from "react-dom/client";
 import {
   KeyboardLayer,
   useKeyBindings,
   useKeyMonitor,
-} from "react-keyboardist";
+} from "keyboardist/react";
+import { useState } from "react";
+import { createRoot } from "react-dom/client";
 
 function ReactModal({ onClose }: { onClose: () => void }) {
   return (

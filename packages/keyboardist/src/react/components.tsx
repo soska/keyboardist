@@ -1,8 +1,3 @@
-import type {
-  BindingMap,
-  KeyboardEventName,
-  MonitorCallback,
-} from "keyboardist";
 import {
   type ComponentPropsWithoutRef,
   type ElementType,
@@ -11,6 +6,7 @@ import {
   useContext,
   useRef,
 } from "react";
+import type { BindingMap, KeyboardEventName, MonitorCallback } from "../index";
 import { KeyboardDepthContext } from "./depth-context";
 import { useElementKeyBindings } from "./use-element-key-bindings";
 import { useKeyBindings } from "./use-key-bindings";

@@ -1,5 +1,5 @@
-import type { BindingMap, KeyboardEventName } from "keyboardist";
 import { useEffect } from "react";
+import type { BindingMap, KeyboardEventName } from "../index";
 import { getSharedListener } from "./shared-listener";
 import { useLatest } from "./use-latest";
 

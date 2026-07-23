@@ -2,7 +2,7 @@
 // The RSC contract: this module must be importable in a server
 // environment (no window, no DOM) without throwing.
 import { describe, expect, test } from "vitest";
-import * as ReactKeyboardist from "../src/index";
+import * as ReactKeyboardist from "../../src/react/index";
 
 describe("server-side import safety", () => {
   test("module imports without a DOM and exposes the API", () => {

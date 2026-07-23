@@ -10,7 +10,7 @@ export type {
   MonitorInfo,
   Subscription,
   SubscriptionCallback,
-} from "keyboardist";
+} from "../index";
 export {
   KeyboardInput,
   type KeyboardInputProps,

@@ -1,7 +1,7 @@
 import { fireEvent } from "@testing-library/dom";
 import { renderHook } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
-import { useKeyMonitor } from "../src/use-key-monitor";
+import { useKeyMonitor } from "../../src/react/use-key-monitor";
 
 describe("useKeyMonitor", () => {
   test("receives structured monitor info", () => {

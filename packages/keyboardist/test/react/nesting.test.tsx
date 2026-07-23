@@ -2,8 +2,8 @@ import { fireEvent } from "@testing-library/dom";
 import { render } from "@testing-library/react";
 import { createPortal } from "react-dom";
 import { describe, expect, test, vi } from "vitest";
-import { KeyboardLayer, KeyboardScope } from "../src/components";
-import { useKeyboardLayer } from "../src/use-keyboard-layer";
+import { KeyboardLayer, KeyboardScope } from "../../src/react/components";
+import { useKeyboardLayer } from "../../src/react/use-keyboard-layer";
 
 describe("nesting = priority", () => {
   test("the headline regression: nested layers mounted in one commit — innermost wins", () => {

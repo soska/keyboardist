@@ -1,8 +1,8 @@
 import { fireEvent } from "@testing-library/dom";
 import { renderHook } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
-import { useKeyBindings } from "../src/use-key-bindings";
-import { useKeyboardLayer } from "../src/use-keyboard-layer";
+import { useKeyBindings } from "../../src/react/use-key-bindings";
+import { useKeyboardLayer } from "../../src/react/use-keyboard-layer";
 
 describe("useKeyboardLayer", () => {
   test("layer bindings fire while mounted and active", () => {

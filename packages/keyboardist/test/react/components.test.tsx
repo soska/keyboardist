@@ -2,7 +2,11 @@ import { fireEvent } from "@testing-library/dom";
 import { render } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
-import { KeyboardInput, Keyboardist, KeyboardLayer } from "../src/components";
+import {
+  KeyboardInput,
+  Keyboardist,
+  KeyboardLayer,
+} from "../../src/react/components";
 
 describe("<Keyboardist>", () => {
   test("renders nothing and binds keys", () => {

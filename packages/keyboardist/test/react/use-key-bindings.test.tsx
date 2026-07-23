@@ -1,7 +1,7 @@
 import { fireEvent } from "@testing-library/dom";
 import { renderHook } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
-import { useKeyBindings } from "../src/use-key-bindings";
+import { useKeyBindings } from "../../src/react/use-key-bindings";
 
 describe("useKeyBindings", () => {
   test("bindings fire on keydown", () => {

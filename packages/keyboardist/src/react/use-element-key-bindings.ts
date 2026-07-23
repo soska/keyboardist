@@ -1,9 +1,9 @@
+import { type RefObject, useEffect, useState } from "react";
 import {
   type BindingMap,
   createListener,
   type KeyboardEventName,
-} from "keyboardist";
-import { type RefObject, useEffect, useState } from "react";
+} from "../index";
 import { keySignatureOf } from "./use-key-bindings";
 import { useLatest } from "./use-latest";
 

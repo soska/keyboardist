@@ -20,7 +20,6 @@
     "keyboardist": "workspace:^",
     "prismjs": "^1.30.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-keyboardist": "workspace:^"
+    "react-dom": "^19.2.8"
   }
 }

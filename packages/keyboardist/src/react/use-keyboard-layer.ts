@@ -1,5 +1,5 @@
-import type { BindingMap, KeyboardEventName, Layer } from "keyboardist";
 import { useContext, useEffect, useId, useMemo, useRef } from "react";
+import type { BindingMap, KeyboardEventName, Layer } from "../index";
 import { KeyboardDepthContext } from "./depth-context";
 import { getSharedListener } from "./shared-listener";
 import { keySignatureOf } from "./use-key-bindings";

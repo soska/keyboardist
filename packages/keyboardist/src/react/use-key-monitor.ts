@@ -1,5 +1,5 @@
-import type { KeyboardEventName, MonitorCallback } from "keyboardist";
 import { useEffect } from "react";
+import type { KeyboardEventName, MonitorCallback } from "../index";
 import { getSharedListener } from "./shared-listener";
 import { useLatest } from "./use-latest";
 
