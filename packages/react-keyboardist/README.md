@@ -68,6 +68,30 @@ function SearchModal({ onClose }) {
 Also returns a handle: `const layer = useKeyboardLayer(...)` →
 `layer.isActive()`, `layer.push()`, `layer.pop()`.
 
+### Nesting is priority
+
+When layers overlap on the same key, **the innermost component wins** —
+the JSX nesting is the priority:
+
+```jsx
+<DashboardLayout>            {/* KeyboardLayer: escape → close sidebar */}
+  <Posts>                    {/* KeyboardLayer: escape → clear selection */}
+    <EditPostModal />        {/* KeyboardLayer: escape → close modal ← wins */}
+  </Posts>
+</DashboardLayout>
+```
+
+This holds even when the whole tree mounts in a single commit. (React runs
+effects child-first, so without this the *outermost* layer would land on top
+of the stack — an inversion that only shows up on initial renders and deep
+links.) Priority is derived from `<KeyboardLayer>` nesting via context, so
+it also flows through portals: a modal rendered with `createPortal` keeps
+the priority of its place in the JSX tree, not the DOM.
+
+Hook-only users can add a nesting level without creating a layer using
+`<KeyboardScope>`; and an explicit `priority` prop/option overrides the
+derived depth for the rare cross-tree case.
+
 ### useKeyMonitor
 
 Observe every key event (one monitor slot per listener — last mounted wins):

@@ -112,11 +112,13 @@ describe("introspection", () => {
       layer: "base",
       key: "backslash",
       active: true,
+      priority: 0,
     });
     expect(kb.getBindings()).toContainEqual({
       layer: "intro-bindings",
       key: "shift+backslash",
       active: false,
+      priority: 0,
     });
 
     layer.push();
@@ -124,6 +126,7 @@ describe("introspection", () => {
       layer: "intro-bindings",
       key: "shift+backslash",
       active: true,
+      priority: 0,
     });
   });
 });

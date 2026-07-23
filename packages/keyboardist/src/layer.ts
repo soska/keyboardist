@@ -16,6 +16,14 @@ export interface LayerOptions {
    * through to the layers below it — they simply go inert.
    */
   exclusive?: boolean;
+  /**
+   * Stack rank (default 0). Higher-priority layers always sit above
+   * lower-priority ones regardless of push order; within the same
+   * priority, the latest push is on top. Lets callers whose push order
+   * doesn't match their logical nesting (e.g. React effects running
+   * child-first) still get the stack they mean.
+   */
+  priority?: number;
 }
 
 export interface PopHandle {
@@ -26,6 +34,7 @@ export interface PopHandle {
 export interface Layer {
   readonly name: string;
   readonly exclusive: boolean;
+  readonly priority: number;
   subscribe: (name: string, callback: SubscriptionCallback) => Subscription;
   bind: (bindings: BindingMap) => Subscription;
   push: () => PopHandle;
@@ -38,6 +47,7 @@ export interface BindingInfo {
   layer: string;
   key: string;
   active: boolean;
+  priority: number;
 }
 
 export type MatchResult =
@@ -48,6 +58,7 @@ export type MatchResult =
 interface LayerState {
   name: string;
   exclusive: boolean;
+  priority: number;
   subscriptions: Map<string, SubscriptionCallback[]>;
 }
 
@@ -82,6 +93,7 @@ export class LayerStack {
     const state: LayerState = {
       name,
       exclusive: options?.exclusive ?? false,
+      priority: options?.priority ?? 0,
       subscriptions: new Map(),
     };
     this.states.set(name, state);
@@ -130,8 +142,18 @@ export class LayerStack {
     };
 
     const push = (): PopHandle => {
-      pop(); // re-pushing an active layer moves it to the top
-      this.stack.push(state);
+      pop(); // re-pushing an active layer re-inserts it by the same rule
+      // Insert below any higher-priority layers, on top of the layer's own
+      // priority band (equal priority stays LIFO). Index 0 is the base
+      // layer, which nothing may go below.
+      let index = this.stack.length;
+      while (
+        index > 1 &&
+        (this.stack[index - 1] as LayerState).priority > state.priority
+      ) {
+        index--;
+      }
+      this.stack.splice(index, 0, state);
       const handle = (() => {
         pop();
       }) as PopHandle;
@@ -144,6 +166,7 @@ export class LayerStack {
     const layer: Layer = {
       name,
       exclusive: state.exclusive,
+      priority: state.priority,
       subscribe,
       bind,
       push,
@@ -195,7 +218,12 @@ export class LayerStack {
       const active = this.stack.includes(state);
       for (const [key, listeners] of state.subscriptions) {
         if (listeners.length > 0) {
-          bindings.push({ layer: state.name, key, active });
+          bindings.push({
+            layer: state.name,
+            key,
+            active,
+            priority: state.priority,
+          });
         }
       }
     }

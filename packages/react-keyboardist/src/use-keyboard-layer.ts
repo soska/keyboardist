@@ -1,5 +1,6 @@
 import type { BindingMap, KeyboardEventName, Layer } from "keyboardist";
-import { useEffect, useId, useMemo, useRef } from "react";
+import { useContext, useEffect, useId, useMemo, useRef } from "react";
+import { KeyboardDepthContext } from "./depth-context";
 import { getSharedListener } from "./shared-listener";
 import { keySignatureOf } from "./use-key-bindings";
 import { useLatest } from "./use-latest";
@@ -11,6 +12,13 @@ export interface UseKeyboardLayerOptions {
   exclusive?: boolean;
   /** Whether the layer is on the stack; defaults to true */
   active?: boolean;
+  /**
+   * Stack priority. Defaults to the component's depth in the tree (via
+   * <KeyboardLayer>/<KeyboardScope> nesting), so inner layers win
+   * overlapping keys regardless of React's child-first effect order.
+   * Set explicitly to override the derived depth.
+   */
+  priority?: number;
   event?: KeyboardEventName;
 }
 
@@ -31,6 +39,8 @@ export function useKeyboardLayer(
   const { name, exclusive = false, active = true, event = "keydown" } = options;
   const autoId = useId();
   const layerName = name ?? `react:${autoId}`;
+  const depth = useContext(KeyboardDepthContext);
+  const priority = options.priority ?? depth + 1;
 
   const bindingsRef = useLatest(bindings);
   const keySignature = keySignatureOf(bindings);
@@ -42,13 +52,13 @@ export function useKeyboardLayer(
     if (!listener) {
       return;
     }
-    const layer = listener.layer(layerName, undefined, { exclusive });
+    const layer = listener.layer(layerName, undefined, { exclusive, priority });
     layerRef.current = layer;
     return () => {
       layer.dispose();
       layerRef.current = null;
     };
-  }, [event, layerName, exclusive]);
+  }, [event, layerName, exclusive, priority]);
 
   // keep the layer's bindings in sync with the current key set
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-runs after the layer is recreated (event/layerName/exclusive) or when the key set changes (keySignature); callbacks are read through bindingsRef
@@ -67,7 +77,7 @@ export function useKeyboardLayer(
         subscription.unsubscribe();
       }
     };
-  }, [event, layerName, exclusive, keySignature, bindingsRef]);
+  }, [event, layerName, exclusive, priority, keySignature, bindingsRef]);
 
   // push/pop driven by `active`
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-pushes after the layer is recreated by the effect above
@@ -80,7 +90,7 @@ export function useKeyboardLayer(
     return () => {
       layer.pop();
     };
-  }, [event, layerName, exclusive, active]);
+  }, [event, layerName, exclusive, priority, active]);
 
   return useMemo(
     () => ({
