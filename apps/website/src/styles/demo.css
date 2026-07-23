@@ -72,6 +72,19 @@
   --shineColor: rgba(0, 0, 0, 0.2);
 }
 
+/* The home hero spells the library name as keycaps — slightly smaller
+ * and tighter than the demo keys so eleven of them fit on one line. */
+.hero-keys .keys {
+  gap: 0.5rem;
+}
+
+.hero-keys .key {
+  --depthSize: 6px;
+  font-size: 1.25rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+}
+
 .layer-modal {
   display: flex;
   position: fixed;

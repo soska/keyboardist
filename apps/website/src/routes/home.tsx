@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { DemoBlock } from "@/components/demo-block";
+import { HeroKeys } from "@/components/hero-keys";
 import { CopyButton } from "@/components/ui/copy-button";
 import PlayerDemo from "@/demos/player-demo";
 import playerDemoSource from "@/demos/player-demo.tsx?raw";
@@ -10,11 +11,7 @@ export function HomePage() {
   return (
     <div className="py-16">
       <section className="text-center">
-        <p className="text-5xl">🎹</p>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-          Keyboardist
-        </h1>
-
+        <HeroKeys />
         <p className="mx-auto mt-4 max-w-xl text-lg leading-8 text-zinc-600 dark:text-zinc-400">
           A declarative way to add keyboard shortcuts to your browser
           applications. Canonical key names, stackable layers, React hooks —
