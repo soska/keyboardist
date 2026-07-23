@@ -89,7 +89,9 @@ describe("<KeyboardInput>", () => {
     fireEvent.keyDown(input as HTMLInputElement, { code: "ArrowDown" });
     expect(onDown).toHaveBeenCalledTimes(1);
 
-    rerender(<KeyboardInput bindings={{ down: onDown }} component="textarea" />);
+    rerender(
+      <KeyboardInput bindings={{ down: onDown }} component="textarea" />,
+    );
     const textarea = container.querySelector("textarea");
     expect(textarea).not.toBe(null);
     fireEvent.keyDown(textarea as HTMLTextAreaElement, { code: "ArrowDown" });
