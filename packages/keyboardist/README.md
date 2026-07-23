@@ -29,6 +29,50 @@ npm install keyboardist
 
 Keyboardist is published as an ES module.
 
+## Why not just addEventListener?
+
+For one shortcut, you don't need a library:
+
+```javascript
+document.addEventListener("keydown", (e) => {
+  if (e.key === "k" && e.metaKey) openPalette();
+});
+```
+
+That's fine — until you add the second shortcut, and the third, and a modal.
+Keyboardist exists because the code above quietly grows five hard problems,
+and every app ends up hand-rolling the same solutions:
+
+- **Key naming.** `event.key` vs `event.code`, layout quirks, modifier
+  combinations, and the `if (e.shiftKey && !e.metaKey && ...)` chains that
+  come with them. Keyboardist gives every combination one canonical,
+  writable name — `"shift+up"`, `"cmd+k"` — and matching is just a map
+  lookup.
+- **Typing vs shortcuts.** Raw listeners fire while the user types into an
+  input, a textarea, or a contenteditable editor. Everyone discovers this in
+  production. Keyboardist ignores editable targets by default (and lets you
+  attach to an input deliberately when that's what you want).
+- **preventDefault discipline.** Swallow too much and you break the browser;
+  too little and the page scrolls when Space was your play button.
+  Keyboardist prevents default only when a binding actually matched.
+- **Modes and modals.** The genuinely hard one. The moment a modal, command
+  palette, or "mode" needs its own keys, you're building a priority system:
+  who wins, what's disabled, and how everything is restored when it closes —
+  including when two modals overlap and close out of order. That's
+  [layers](#layers), and it's the reason this library exists: the ad-hoc
+  version of this (save the old handler, restore it in a closure) is exactly
+  where hand-rolled implementations grow bugs.
+- **Lifecycle.** Subscriptions that clean up after themselves (`unsubscribe`,
+  `using`), multiple handlers per key with predictable order and
+  stop-propagation, and a [monitor](#key-monitor) so you can see what the
+  keyboard is doing instead of sprinkling `console.log` into a raw handler.
+
+All of that for ~3 kB gzipped, zero dependencies, one `addEventListener`
+per listener under the hood, and `false` instead of a crash on the server.
+If your app has one shortcut, keep the raw listener. The day it has three
+and a modal, this is the code you were going to write anyway — already
+tested.
+
 ## Usage
 
 `createListener` returns a listener object. In non-browser environments (e.g.

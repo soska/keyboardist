@@ -5,7 +5,7 @@
     { "repo": "soska/keyboardist" }
   ],
   "commit": false,
-  "fixed": [],
+  "fixed": [["keyboardist", "react-keyboardist"]],
   "linked": [],
   "access": "public",
   "baseBranch": "master",
