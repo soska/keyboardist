@@ -29,17 +29,26 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
+
+  /* The keycaps' border ring and 3D skirt are box-shadows, so they paint
+   * outside the layout box. Geometry lives here — on the row rather than
+   * the cap — so the row can pad itself back out to the caps' visual
+   * bounds and neighbouring elements space off what you actually see. */
+  --depthSize: 9px;
+  --borderSize: 3px;
+
+  padding-block-start: var(--borderSize);
+  padding-block-end: calc(var(--depthSize) + var(--borderSize));
+  padding-inline: var(--borderSize);
 }
 
 .key {
   --shineColor: white;
   --bgColor: gold;
   --depthColor: goldenrod;
-  --depthSize: 9px;
   --pressedDepthSize: 0;
 
   --borderColor: rgba(0, 0, 0, 0.9);
-  --borderSize: 3px;
   --shadowColor: rgba(0, 0, 0, 0.5);
   --shadowOffset: 1rem;
 
@@ -76,10 +85,10 @@
  * and tighter than the demo keys so eleven of them fit on one line. */
 .hero-keys .keys {
   gap: 0.5rem;
+  --depthSize: 6px;
 }
 
 .hero-keys .key {
-  --depthSize: 6px;
   font-size: 1.25rem;
   padding: 0.625rem 0.875rem;
   border-radius: 0.75rem;
