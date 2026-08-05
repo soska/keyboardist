@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { DemoBlock } from "@/components/demo-block";
 import { HeroKeys } from "@/components/hero-keys";
 import { CopyButton } from "@/components/ui/copy-button";
+import { GitHubIcon } from "@/components/ui/github-icon";
 import PlayerDemo from "@/demos/player-demo";
 import playerDemoSource from "@/demos/player-demo.tsx?raw";
 import { usePageTitle } from "@/lib/use-page-title";
@@ -32,8 +33,9 @@ export function HomePage() {
           </Link>
           <a
             href="https://github.com/soska/keyboardist"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
           >
+            <GitHubIcon className="size-4" />
             GitHub
           </a>
         </div>

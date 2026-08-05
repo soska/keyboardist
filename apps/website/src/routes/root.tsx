@@ -1,4 +1,5 @@
 import { Link, Outlet } from "@tanstack/react-router";
+import { GitHubIcon } from "@/components/ui/github-icon";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const navigation = [
@@ -34,8 +35,9 @@ export function RootLayout() {
           </nav>
           <a
             href="https://github.com/soska/keyboardist"
-            className="ml-auto text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+            className="ml-auto inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
           >
+            <GitHubIcon className="size-4" />
             GitHub
           </a>
           <ThemeToggle />
