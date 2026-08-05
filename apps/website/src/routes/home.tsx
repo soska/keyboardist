@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { DemoBlock } from "@/components/demo-block";
 import { HeroKeys } from "@/components/hero-keys";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -24,9 +25,10 @@ export function HomePage() {
         <div className="mt-6 flex justify-center gap-3">
           <Link
             to="/getting-started"
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
           >
             Get started
+            <ArrowRight aria-hidden className="size-4" />
           </Link>
           <a
             href="https://github.com/soska/keyboardist"

@@ -1,3 +1,4 @@
+import { Check, Copy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export function CopyButton({ text }: { text: string }) {
@@ -17,9 +18,15 @@ export function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={copy}
-      className="rounded-md px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 dark:hover:bg-zinc-700 dark:hover:text-zinc-100"
+      aria-label={copied ? "Copied" : "Copy to clipboard"}
+      title={copied ? "Copied" : "Copy to clipboard"}
+      className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 dark:hover:bg-zinc-700 dark:hover:text-zinc-100"
     >
-      {copied ? "Copied!" : "Copy"}
+      {copied ? (
+        <Check aria-hidden className="size-4 text-emerald-600" />
+      ) : (
+        <Copy aria-hidden className="size-4" />
+      )}
     </button>
   );
 }
