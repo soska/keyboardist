@@ -37,7 +37,7 @@ export function RootLayout() {
             href="https://github.com/soska/keyboardist"
             className="ml-auto inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
           >
-            <GitHubIcon className="size-4" />
+            <GitHubIcon className="size-3.5" />
             GitHub
           </a>
           <ThemeToggle />
