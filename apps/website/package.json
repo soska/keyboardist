@@ -22,6 +22,7 @@
   "dependencies": {
     "@tanstack/react-router": "^1.170.18",
     "keyboardist": "workspace:^",
+    "lucide-react": "^1.28.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "shiki": "^4.3.1"

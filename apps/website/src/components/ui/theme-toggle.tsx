@@ -1,3 +1,4 @@
+import { Moon, Sun } from "lucide-react";
 import { useState } from "react";
 
 export function ThemeToggle() {
@@ -18,9 +19,13 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       title={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className="rounded-md px-2 py-1 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+      className="rounded-md p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
     >
-      {dark ? "☀️" : "🌙"}
+      {dark ? (
+        <Sun aria-hidden className="size-4" />
+      ) : (
+        <Moon aria-hidden className="size-4" />
+      )}
     </button>
   );
 }
