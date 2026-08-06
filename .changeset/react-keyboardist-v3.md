@@ -1,11 +1,15 @@
 ---
-"react-keyboardist": major
+"keyboardist": major
 ---
 
-react-keyboardist joins the keyboardist monorepo, rewritten for React 18/19 and React Server Components.
+React support now ships inside keyboardist itself, as the `keyboardist/react` subpath — the separate `react-keyboardist` package is retired (frozen at 0.2.0).
 
-- **Hooks API**: `useKeyBindings(map)`, `useKeyboardLayer(map, { exclusive, active })`, `useKeyMonitor(fn)`, and `useElementKeyBindings(ref, map)`.
-- **Components**: `<Keyboardist bindings monitor?>` (still the default export, renders nothing), new `<KeyboardLayer bindings exclusive? active?>` that scopes the keyboard to its children while mounted, and `<KeyboardInput>` (ports the old element-attached input, now with ref forwarding).
-- **RSC/Next.js-safe**: the bundle ships a `'use client'` directive, so components drop straight into server-component trees; listeners are created lazily on first client use (never at module scope), and importing the package is safe without a DOM.
+```jsx
+import Keyboardist, { KeyboardLayer, useKeyBindings } from "keyboardist/react";
+```
+
+- **Hooks**: `useKeyBindings(map)`, `useKeyboardLayer(map, { exclusive, active })`, `useKeyMonitor(fn)`, and `useElementKeyBindings(ref, map)`.
+- **Components**: `<Keyboardist bindings monitor?>` (the classic API, default export of the subpath), `<KeyboardLayer>` scoping the keyboard to its children, `<KeyboardScope>` for hook-only nesting, and `<KeyboardInput>` with ref forwarding.
+- **RSC/Next.js-safe**: the `./react` bundle carries its own `'use client'` directive, listeners are created lazily in effects (never at module scope), and importing either subpath is safe without a DOM.
 - **Inline-friendly**: bindings objects can be inline JSX props — callbacks are read through refs and resubscription only happens when the key set changes.
-- Powered by keyboardist 3 layers; versions are now locked to `keyboardist` (3.x pairs with 3.x). Requires React 18 or 19.
+- One install, one version: `react` is an **optional peer dependency**, so vanilla users see no peer warnings. Requires React 18 or 19 when the subpath is used.

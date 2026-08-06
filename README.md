@@ -35,8 +35,7 @@ This is the Keyboardist monorepo:
 
 | Package | Description |
 | --- | --- |
-| [`packages/keyboardist`](packages/keyboardist) | The [`keyboardist`](https://www.npmjs.com/package/keyboardist) npm package — docs live in its [README](packages/keyboardist/README.md) |
-| [`packages/react-keyboardist`](packages/react-keyboardist) | [`react-keyboardist`](https://www.npmjs.com/package/react-keyboardist) — React hooks and components, RSC-safe |
+| [`packages/keyboardist`](packages/keyboardist) | The [`keyboardist`](https://www.npmjs.com/package/keyboardist) npm package — core plus React hooks/components at the `keyboardist/react` subpath. Docs live in its [README](packages/keyboardist/README.md) |
 | [`apps/website`](apps/website) | The demo website |
 
 ## Development
@@ -45,6 +44,7 @@ Requires Node 24 and [pnpm](https://pnpm.io):
 
 ```sh
 pnpm install
+pnpm dev     # run the demo website at http://localhost:5100
 pnpm check   # lint + typecheck + test + build
 ```
 

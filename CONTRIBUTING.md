@@ -15,8 +15,7 @@ This is a pnpm workspace monorepo:
 
 | Path | What it is |
 | --- | --- |
-| `packages/keyboardist` | The `keyboardist` npm package |
-| `packages/react-keyboardist` | The `react-keyboardist` npm package (hooks + components) |
+| `packages/keyboardist` | The `keyboardist` npm package — core (`src/`) + React subpath (`src/react/`) |
 | `apps/website` | The demo/docs website (Vite, deployed to Netlify) |
 
 ## Getting started
