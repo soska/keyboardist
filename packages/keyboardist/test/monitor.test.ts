@@ -30,7 +30,7 @@ describe("structured monitor", () => {
   test("reports matched=true and the layer name on a hit", () => {
     const kb = createListenerOrThrow();
     const monitor = vi.fn();
-    const layer = kb.layer("monitored-layer", { Period: vi.fn() });
+    const layer = kb.layer("monitored-layer", { Period: vi.fn(() => {}) });
     layer.push();
     kb.setMonitor(monitor);
 
@@ -106,7 +106,9 @@ describe("introspection", () => {
   test("getBindings lists bindings with their layer and active state", () => {
     const kb = createListenerOrThrow();
     kb.subscribe("Backslash", vi.fn());
-    const layer = kb.layer("intro-bindings", { "shift+Backslash": vi.fn() });
+    const layer = kb.layer("intro-bindings", {
+      "shift+Backslash": vi.fn(() => {}),
+    });
 
     expect(kb.getBindings()).toContainEqual({
       layer: "base",

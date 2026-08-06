@@ -2,7 +2,7 @@ import { useContext, useEffect, useId, useMemo, useRef } from "react";
 import type { BindingMap, KeyboardEventName, Layer } from "../index";
 import { KeyboardDepthContext } from "./depth-context";
 import { getSharedListener } from "./shared-listener";
-import { keySignatureOf } from "./use-key-bindings";
+import { bindingSignatureOf, subscribeBinding } from "./use-key-bindings";
 import { useLatest } from "./use-latest";
 
 export interface UseKeyboardLayerOptions {
@@ -43,7 +43,7 @@ export function useKeyboardLayer(
   const priority = options.priority ?? depth + 1;
 
   const bindingsRef = useLatest(bindings);
-  const keySignature = keySignatureOf(bindings);
+  const bindingSignature = bindingSignatureOf(bindings);
   const layerRef = useRef<Layer | null>(null);
 
   // create the layer for this component's lifetime
@@ -61,23 +61,21 @@ export function useKeyboardLayer(
   }, [event, layerName, exclusive, priority]);
 
   // keep the layer's bindings in sync with the current key set
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-runs after the layer is recreated (event/layerName/exclusive) or when the key set changes (keySignature); callbacks are read through bindingsRef
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-runs after the layer is recreated (event/layerName/exclusive) or when the keys or descriptions change (bindingSignature); callbacks are read through bindingsRef
   useEffect(() => {
     const layer = layerRef.current;
     if (!layer) {
       return;
     }
     const subscriptions = Object.keys(bindingsRef.current).map((key) =>
-      layer.subscribe(key, (keyboardEvent) =>
-        bindingsRef.current[key]?.(keyboardEvent),
-      ),
+      subscribeBinding(layer, bindingsRef, key),
     );
     return () => {
       for (const subscription of subscriptions) {
         subscription.unsubscribe();
       }
     };
-  }, [event, layerName, exclusive, priority, keySignature, bindingsRef]);
+  }, [event, layerName, exclusive, priority, bindingSignature, bindingsRef]);
 
   // push/pop driven by `active`
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-pushes after the layer is recreated by the effect above

@@ -1,6 +1,7 @@
 import { DocsLayout } from "@/components/layout/docs-layout";
 import { P } from "@/components/prose";
 import { usePageTitle } from "@/lib/use-page-title";
+import { DescriptionsSection } from "@/sections/core/descriptions";
 import { ElementSection } from "@/sections/core/element";
 import { KeyNamesSection } from "@/sections/core/key-names";
 import { LayersSection } from "@/sections/core/layers";
@@ -20,6 +21,11 @@ const sections = [
     id: "multiple-listeners",
     title: "Multiple listeners",
     Component: MultipleListenersSection,
+  },
+  {
+    id: "descriptions",
+    title: "Describing bindings",
+    Component: DescriptionsSection,
   },
   { id: "layers", title: "Layers", Component: LayersSection },
   { id: "priority", title: "Priority", Component: PrioritySection },
