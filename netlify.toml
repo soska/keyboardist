@@ -1,0 +1,5 @@
+# Netlify detects pnpm via pnpm-lock.yaml + the packageManager field
+# and runs `pnpm install` automatically before the build command.
+[build]
+  command = "pnpm --filter @keyboardist/website build"
+  publish = "apps/website/dist"

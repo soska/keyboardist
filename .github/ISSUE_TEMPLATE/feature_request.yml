@@ -1,0 +1,17 @@
+name: Feature request
+description: Suggest an idea for Keyboardist
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like it to work? A sketch of the API is welcome.
+    validations:
+      required: true

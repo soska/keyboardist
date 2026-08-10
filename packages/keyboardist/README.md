@@ -1,0 +1,495 @@
+# 🎹 Keyboardist: Declarative keyboard listener
+
+A declarative way to add keyboard shortcuts to your browser applications, with
+zero dependencies.
+
+Using React? Hooks and components ship in the same package —
+see [`keyboardist/react`](#react).
+
+```javascript
+import { createListener } from "keyboardist";
+
+// by default it listens to keydown
+const listener = createListener();
+
+listener.subscribe("Down", () => {
+  console.log("Pressed down");
+});
+
+listener.subscribe("Shift+Down", () => {
+  console.log("Pressed Shift + down");
+});
+```
+
+## Install
+
+```sh
+npm install keyboardist
+```
+
+Keyboardist is published as an ES module.
+
+## Why not just addEventListener?
+
+For one shortcut, you don't need a library:
+
+```javascript
+document.addEventListener("keydown", (e) => {
+  if (e.key === "k" && e.metaKey) openPalette();
+});
+```
+
+That's fine — until you add the second shortcut, and the third, and a modal.
+Keyboardist exists because the code above quietly grows five hard problems,
+and every app ends up hand-rolling the same solutions:
+
+- **Key naming.** `event.key` vs `event.code`, layout quirks, modifier
+  combinations, and the `if (e.shiftKey && !e.metaKey && ...)` chains that
+  come with them. Keyboardist gives every combination one canonical,
+  writable name — `"shift+up"`, `"cmd+k"` — and matching is just a map
+  lookup.
+- **Typing vs shortcuts.** Raw listeners fire while the user types into an
+  input, a textarea, or a contenteditable editor. Everyone discovers this in
+  production. Keyboardist ignores editable targets by default (and lets you
+  attach to an input deliberately when that's what you want).
+- **preventDefault discipline.** Swallow too much and you break the browser;
+  too little and the page scrolls when Space was your play button.
+  Keyboardist prevents default only when a binding actually matched.
+- **Modes and modals.** The genuinely hard one. The moment a modal, command
+  palette, or "mode" needs its own keys, you're building a priority system:
+  who wins, what's disabled, and how everything is restored when it closes —
+  including when two modals overlap and close out of order. That's
+  [layers](#layers), and it's the reason this library exists: the ad-hoc
+  version of this (save the old handler, restore it in a closure) is exactly
+  where hand-rolled implementations grow bugs.
+- **Lifecycle.** Subscriptions that clean up after themselves (`unsubscribe`,
+  `using`), multiple handlers per key with predictable order and
+  stop-propagation, and a [monitor](#key-monitor) so you can see what the
+  keyboard is doing instead of sprinkling `console.log` into a raw handler.
+
+All of that for ~3 kB gzipped, zero dependencies, one `addEventListener`
+per listener under the hood, and `false` instead of a crash on the server.
+If your app has one shortcut, keep the raw listener. The day it has three
+and a modal, this is the code you were going to write anyway — already
+tested.
+
+## Usage
+
+`createListener` returns a listener object. In non-browser environments (e.g.
+during server-side rendering) it returns `false` instead, so check the return
+value if your code also runs outside the browser.
+
+`subscribe` accepts two arguments: a key or key combination and a callback that
+will run when that key (or key combination) is pressed. The callback receives
+the original `KeyboardEvent`.
+
+```javascript
+import { createListener } from "keyboardist";
+
+const listener = createListener();
+
+const keySubscription = listener.subscribe("Slash", () => {
+  focusSearch();
+});
+```
+
+### Key names
+
+Friendly names are canonical, and raw `event.code` spellings normalize to the
+same key — all of these match the same binding:
+
+| You write | Canonical name |
+| --- | --- |
+| `a`, `KeyA`, `keya` | `a` |
+| `up`, `ArrowUp` | `up` |
+| `1`, `Digit1` | `1` (`numpad1` stays distinct) |
+| `shift+up`, `Shift + ArrowUp` | `shift+up` |
+| `cmd+k`, `Meta+K`, `command+k` | `meta+k` |
+| `ctrl+shift+p`, `shift+control+p` | `shift+ctrl+p` |
+
+Case and spaces are ignored; modifiers always normalize to the order
+alt, shift, ctrl, meta. A comma binds one handler to several keys:
+`subscribe("j,k", fn)` fires for both. If you're unsure of a key's name, use
+the [monitor](#key-monitor). The normalizer is exported as
+`normalizeKeyName()` if you need it.
+
+The object returned by `subscribe` has an `unsubscribe` method:
+
+```javascript
+// create a subscription
+const keySubscription = listener.subscribe("Slash", () => {
+  focusSearch();
+});
+
+// remove the subscription
+keySubscription.unsubscribe();
+```
+
+## Multiple listeners for a key
+
+You can add multiple listeners for the same key. They run starting from the
+last one subscribed, and returning `false` from a callback stops the earlier
+ones from running.
+
+```javascript
+listener.subscribe("Space", () => {
+  console.log("A");
+});
+
+listener.subscribe("Space", () => {
+  console.log("B");
+});
+
+listener.subscribe("Space", () => {
+  console.log("C");
+});
+
+// the console will log 'C', then 'B', then 'A' when the spacebar is pressed.
+```
+
+## Describing bindings
+
+Bindings can carry a description, so your app can build its own shortcut sheet
+from the bindings that are actually live — no second list to keep in sync:
+
+```javascript
+listener.subscribe(
+  "Down",
+  () => {
+    moveDown();
+  },
+  { description: "Moves down one item" },
+);
+
+// a bare string is shorthand for { description }
+listener.subscribe("Up", moveUp, "Moves up one item");
+```
+
+Read them back with `getBindings()`:
+
+```javascript
+listener.getBindings();
+// [
+//   { layer: "base", key: "down", active: true, priority: 0,
+//     description: "Moves down one item" },
+//   { layer: "base", key: "up",   active: true, priority: 0,
+//     description: "Moves up one item" },
+// ]
+```
+
+In a bindings map, swap the callback for an object to describe it. Bare
+callbacks keep working, and the two forms mix freely:
+
+```javascript
+listener.layer("editor", {
+  KeyS: { handler: save, description: "Saves the document" },
+  KeyZ: undo, // undocumented, still bound
+});
+```
+
+Bindings listed by `getBindings()` are grouped by `layer`, not flattened by
+key — the same key can be bound on several layers at once, which is the whole
+point of layers. Use `active` to show only what's reachable right now:
+
+```javascript
+const live = listener.getBindings().filter((binding) => binding.active);
+```
+
+Pass `hidden: true` for bindings you don't want on the sheet. They stay fully
+functional — this is for plumbing, like the shortcut that opens the sheet
+itself:
+
+```javascript
+listener.subscribe("shift+slash", toggleHelp, { hidden: true });
+```
+
+> **Note:** key names come from `event.code`, so `?` is `"shift+slash"` on a
+> US layout. Subscribing to the literal `"?"` will never match. On layouts
+> where `?` isn't shift+slash, pick the binding that suits your users.
+
+When a key has several subscriptions on one layer, the last one subscribed
+wins per field — it's also the first to run, so it's the one the user gets.
+Unsubscribing it falls back to the description beneath.
+
+## Layers
+
+Bindings can live on named **layers** that stack. The topmost layer with a
+binding for a key wins and shadows the layers below it; keys that don't match
+fall through. This is how you give a modal its own keyboard without tearing
+down the rest of the app:
+
+```javascript
+const kb = createListener();
+
+// base bindings — always at the bottom of the stack
+kb.subscribe("slash", focusSearch);
+
+// a named layer with map registration; commas bind aliases
+const player = kb.layer("player", {
+  space: togglePlay,
+  "j,k": step,
+  "shift+up": volumeUp,
+});
+player.push(); // player bindings are now live
+
+// an exclusive layer: unmatched keys go inert instead of falling through,
+// so every player shortcut is disabled while the modal is open
+const modal = kb.layer("modal", { escape: closeModal }, { exclusive: true });
+
+const pop = modal.push(); // modal now owns the keyboard
+// ...when the modal closes:
+pop(); // player (and base) bindings are live again
+```
+
+Popping is order-independent: if two modals overlap, popping the lower one
+leaves the upper one exactly where it is. Re-pushing an active layer moves it
+to the top. Layers also have `subscribe(key, fn)`, `bind(map)` (returns one
+subscription for the whole map), `pop()`, `isActive()`, and `dispose()`.
+
+### Priority
+
+When push order can't express who should win — for example when a framework
+schedules your pushes in an order you don't control — give layers a
+`priority` (default `0`). Higher-priority layers always sit above
+lower-priority ones regardless of push order; within the same priority, the
+latest push is on top, exactly like before:
+
+```javascript
+kb.layer("layout", { escape: closeSidebar }, { priority: 1 });
+kb.layer("modal", { escape: closeModal }, { priority: 3 });
+
+// no matter which order these get pushed in, modal beats layout
+```
+
+(If you use [`keyboardist/react`](#react), priority is derived from the
+component tree automatically — you shouldn't need to set it by hand.)
+
+Inspect the stack at runtime with `kb.activeLayers()` (names, top to bottom,
+ending in `"base"`) and `kb.getBindings()` (every binding with its layer,
+active state, and [description](#describing-bindings)).
+
+## Key monitor
+
+The listener has a `setMonitor` method that lets you set a function that will
+observe every key event. Pass `true` to use the default built-in monitor
+(which logs to the console) or pass your own function. Pass `false` (or
+nothing) to clear it.
+
+The default monitor is useful in development when you don't know the correct
+key name you want to use.
+
+```javascript
+const listener = createListener();
+
+// use the default monitor
+listener.setMonitor(true);
+
+// will show the key names / combination as you type them. For example:
+// `:keyboard event: a`
+// `:keyboard event: slash`
+// `:keyboard event: shift+space`
+```
+
+A custom monitor receives a single object: `keyName` (canonical name),
+`matched` (true if a binding won), `layer` (the winning layer's name, or
+`null`), and the original `event`.
+
+```javascript
+listener.setMonitor(({ keyName, matched, layer, event }) => {
+  document.getElementById("monitor").innerHTML = `You pressed ${keyName}`;
+});
+```
+
+## Other events
+
+By default the listener listens to `keydown` events, but you can pass `keyup`
+to use that event instead:
+
+```javascript
+import { createListener } from "keyboardist";
+
+const downListener = createListener();
+const upListener = createListener("keyup");
+
+downListener.subscribe("KeyA", () => {
+  console.log("Just pressed the A key");
+});
+
+upListener.subscribe("KeyA", () => {
+  console.log("Just released the A key");
+});
+```
+
+## Listening on a specific element
+
+`createListener` accepts an element as a second argument. By default it
+listens on `document`. Keyboard events originating from form elements
+(`input`, `textarea`, `select`, `button`) are ignored — unless the listener is
+attached to that element directly:
+
+```javascript
+const input = document.getElementById("search");
+const inputListener = createListener("keydown", input);
+
+inputListener.subscribe("Escape", () => input.blur());
+```
+
+## Stop listening
+
+Internally each listener attaches a single event handler to the target
+element. `stopListening` removes it; `startListening` re-attaches it.
+
+```javascript
+const listener = createListener();
+
+listener.subscribe("KeyA", () => {
+  console.log("Just pressed the A key");
+});
+
+// Remove the event listener from the document
+listener.stopListening();
+
+// Reattach it again:
+listener.startListening();
+```
+
+## `using` support
+
+Subscriptions and layer push-handles implement `[Symbol.dispose]`, so they
+work with explicit resource management:
+
+```typescript
+{
+  using sub = kb.subscribe("slash", focusSearch);
+  using modalSession = modal.push();
+  // ...
+} // automatically unsubscribed and popped here
+```
+
+## React
+
+React hooks and components ship as a subpath of this same package — one
+install, one version, RSC-safe:
+
+```jsx
+import Keyboardist, { KeyboardLayer, useKeyBindings } from "keyboardist/react";
+
+// works directly inside a Next.js server component tree — the subpath
+// ships its own "use client" boundary
+export default function Page() {
+  return (
+    <>
+      <Keyboardist bindings={{ "cmd+k": openPalette, slash: focusSearch }} />
+      <Content />
+    </>
+  );
+}
+```
+
+Requires React 18 or 19 (an *optional* peer dependency — vanilla users see
+no peer warnings).
+
+### Hooks
+
+- `useKeyBindings(map)` — global bindings for the component's lifetime.
+  Inline objects are fine: callbacks are read through refs, and
+  resubscription only happens when the keys or their
+  [descriptions](#describing-bindings) change.
+- `useKeyboardLayer(map, { exclusive, active, priority, name })` — a
+  [layer](#layers) scoped to the component: created on mount, pushed while
+  `active` (default `true`), disposed on unmount. Returns a handle with
+  `isActive()`, `push()`, `pop()`.
+- `useKeyMonitor(fn)` — observes every key event with the structured
+  [monitor](#key-monitor) payload (one monitor slot per listener; last
+  mounted wins).
+- `useElementKeyBindings(ref, map)` — a dedicated listener attached to an
+  element; bindings keep firing while the user types in it.
+
+### Components
+
+```jsx
+// global bindings, renders nothing (the classic react-keyboardist API)
+<Keyboardist bindings={{ slash: focusSearch }} monitor={logKeys} />
+
+// scope the keyboard to a subtree while it's mounted
+<KeyboardLayer bindings={{ escape: close }} exclusive>
+  <Modal />
+</KeyboardLayer>
+
+// an input with its own attached listener
+<KeyboardInput bindings={{ up: increment, down: decrement }} ref={inputRef} />
+```
+
+Any `bindings` prop takes the [described form](#describing-bindings), so a
+component can document its own shortcuts:
+
+```jsx
+<KeyboardLayer
+  bindings={{
+    escape: { handler: close, description: "Closes the dialog" },
+    enter: { handler: submit, description: "Saves and closes" },
+  }}
+  exclusive
+>
+  <Modal />
+</KeyboardLayer>
+```
+
+Because a layer knows which of its bindings are `active`, a help sheet can be
+rendered straight off `getSharedListener().getBindings()` — it updates itself
+as layers push and pop.
+
+### Nesting is priority
+
+When layers overlap on the same key, **the innermost component wins** — the
+JSX nesting is the priority:
+
+```jsx
+<DashboardLayout>            {/* KeyboardLayer: escape → close sidebar */}
+  <Posts>                    {/* KeyboardLayer: escape → clear selection */}
+    <EditPostModal />        {/* KeyboardLayer: escape → close modal ← wins */}
+  </Posts>
+</DashboardLayout>
+```
+
+This holds even when the whole tree mounts in a single commit (React runs
+effects child-first, so without this the *outermost* layer would land on top
+of the stack). Priority is derived from `<KeyboardLayer>` nesting via
+context, so it flows through portals too: a `createPortal` modal keeps the
+priority of its place in the JSX tree, not the DOM. Hook-only users can add
+a nesting level with `<KeyboardScope>`, and an explicit `priority`
+prop/option overrides the derived depth.
+
+### Server-side rendering & React Server Components
+
+- The `keyboardist/react` bundle starts with `'use client'`, so importing
+  any component from a server component automatically creates the client
+  boundary.
+- Listeners are created lazily on first client-side effect — importing the
+  package never touches `window`, and rendering on the server is a no-op.
+
+## TypeScript
+
+Keyboardist ships its own type definitions:
+
+```typescript
+import {
+  createListener,
+  type BindingEntry,
+  type BindingInfo,
+  type BindingOptions,
+  type KeyboardistListener,
+  type Layer,
+  type MonitorInfo,
+  type Subscription,
+} from "keyboardist";
+```
+
+`BindingMap` values are `SubscriptionCallback | BindingEntry`, so both the
+bare-callback and [described](#describing-bindings) forms typecheck. One
+wrinkle worth knowing in tests: a bare `vi.fn()` no longer infers against the
+union — give it an implementation (`vi.fn(() => {})`) and it resolves.
+
+## License
+
+MIT © [Armando Sosa](https://armandososa.org)
