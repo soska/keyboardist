@@ -147,6 +147,70 @@ listener.subscribe("Space", () => {
 // the console will log 'C', then 'B', then 'A' when the spacebar is pressed.
 ```
 
+## Describing bindings
+
+Bindings can carry a description, so your app can build its own shortcut sheet
+from the bindings that are actually live — no second list to keep in sync:
+
+```javascript
+listener.subscribe(
+  "Down",
+  () => {
+    moveDown();
+  },
+  { description: "Moves down one item" },
+);
+
+// a bare string is shorthand for { description }
+listener.subscribe("Up", moveUp, "Moves up one item");
+```
+
+Read them back with `getBindings()`:
+
+```javascript
+listener.getBindings();
+// [
+//   { layer: "base", key: "down", active: true, priority: 0,
+//     description: "Moves down one item" },
+//   { layer: "base", key: "up",   active: true, priority: 0,
+//     description: "Moves up one item" },
+// ]
+```
+
+In a bindings map, swap the callback for an object to describe it. Bare
+callbacks keep working, and the two forms mix freely:
+
+```javascript
+listener.layer("editor", {
+  KeyS: { handler: save, description: "Saves the document" },
+  KeyZ: undo, // undocumented, still bound
+});
+```
+
+Bindings listed by `getBindings()` are grouped by `layer`, not flattened by
+key — the same key can be bound on several layers at once, which is the whole
+point of layers. Use `active` to show only what's reachable right now:
+
+```javascript
+const live = listener.getBindings().filter((binding) => binding.active);
+```
+
+Pass `hidden: true` for bindings you don't want on the sheet. They stay fully
+functional — this is for plumbing, like the shortcut that opens the sheet
+itself:
+
+```javascript
+listener.subscribe("shift+slash", toggleHelp, { hidden: true });
+```
+
+> **Note:** key names come from `event.code`, so `?` is `"shift+slash"` on a
+> US layout. Subscribing to the literal `"?"` will never match. On layouts
+> where `?` isn't shift+slash, pick the binding that suits your users.
+
+When a key has several subscriptions on one layer, the last one subscribed
+wins per field — it's also the first to run, so it's the one the user gets.
+Unsubscribing it falls back to the description beneath.
+
 ## Layers
 
 Bindings can live on named **layers** that stack. The topmost layer with a
@@ -201,8 +265,8 @@ kb.layer("modal", { escape: closeModal }, { priority: 3 });
 component tree automatically — you shouldn't need to set it by hand.)
 
 Inspect the stack at runtime with `kb.activeLayers()` (names, top to bottom,
-ending in `"base"`) and `kb.getBindings()` (every binding with its layer and
-active state).
+ending in `"base"`) and `kb.getBindings()` (every binding with its layer,
+active state, and [description](#describing-bindings)).
 
 ## Key monitor
 
@@ -329,7 +393,8 @@ no peer warnings).
 
 - `useKeyBindings(map)` — global bindings for the component's lifetime.
   Inline objects are fine: callbacks are read through refs, and
-  resubscription only happens when the set of keys changes.
+  resubscription only happens when the keys or their
+  [descriptions](#describing-bindings) change.
 - `useKeyboardLayer(map, { exclusive, active, priority, name })` — a
   [layer](#layers) scoped to the component: created on mount, pushed while
   `active` (default `true`), disposed on unmount. Returns a handle with
@@ -354,6 +419,25 @@ no peer warnings).
 // an input with its own attached listener
 <KeyboardInput bindings={{ up: increment, down: decrement }} ref={inputRef} />
 ```
+
+Any `bindings` prop takes the [described form](#describing-bindings), so a
+component can document its own shortcuts:
+
+```jsx
+<KeyboardLayer
+  bindings={{
+    escape: { handler: close, description: "Closes the dialog" },
+    enter: { handler: submit, description: "Saves and closes" },
+  }}
+  exclusive
+>
+  <Modal />
+</KeyboardLayer>
+```
+
+Because a layer knows which of its bindings are `active`, a help sheet can be
+rendered straight off `getSharedListener().getBindings()` — it updates itself
+as layers push and pop.
 
 ### Nesting is priority
 
@@ -391,12 +475,20 @@ Keyboardist ships its own type definitions:
 ```typescript
 import {
   createListener,
+  type BindingEntry,
+  type BindingInfo,
+  type BindingOptions,
   type KeyboardistListener,
   type Layer,
   type MonitorInfo,
   type Subscription,
 } from "keyboardist";
 ```
+
+`BindingMap` values are `SubscriptionCallback | BindingEntry`, so both the
+bare-callback and [described](#describing-bindings) forms typecheck. One
+wrinkle worth knowing in tests: a bare `vi.fn()` no longer infers against the
+union — give it an implementation (`vi.fn(() => {})`) and it resolves.
 
 ## License
 

@@ -36,7 +36,7 @@ describe("explicit resource management", () => {
 
   test("double dispose is a no-op", () => {
     const kb = createListenerOrThrow();
-    const layer = kb.layer("double-dispose", { Digit9: vi.fn() });
+    const layer = kb.layer("double-dispose", { Digit9: vi.fn(() => {}) });
 
     const handle = layer.push();
     handle();

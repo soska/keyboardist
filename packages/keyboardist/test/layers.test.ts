@@ -66,7 +66,7 @@ describe("layer basics", () => {
 
   test("dispose pops and removes the layer definition", () => {
     const kb = createListenerOrThrow();
-    const layer = kb.layer("disposable", { KeyR: vi.fn() });
+    const layer = kb.layer("disposable", { KeyR: vi.fn(() => {}) });
     layer.push();
     layer.dispose();
     expect(layer.isActive()).toBe(false);
@@ -97,7 +97,7 @@ describe("dispatch rules", () => {
     const kb = createListenerOrThrow();
     const baseCallback = vi.fn();
     kb.subscribe("KeyY", baseCallback);
-    kb.layer("fallthrough-modal", { escape: vi.fn() }).push();
+    kb.layer("fallthrough-modal", { escape: vi.fn(() => {}) }).push();
 
     fireEvent.keyDown(document, { code: "KeyY" });
     expect(baseCallback).toHaveBeenCalled();
@@ -344,7 +344,7 @@ describe("layer priority", () => {
 
   test("getBindings reports priority", () => {
     const kb = createListenerOrThrow();
-    kb.layer("prio-bindings", { Digit6: vi.fn() }, { priority: 7 });
+    kb.layer("prio-bindings", { Digit6: vi.fn(() => {}) }, { priority: 7 });
 
     expect(kb.getBindings()).toContainEqual({
       layer: "prio-bindings",

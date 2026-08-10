@@ -1,8 +1,11 @@
 "use client";
 
 export type {
+  BindingDescriptor,
+  BindingEntry,
   BindingInfo,
   BindingMap,
+  BindingOptions,
   KeyboardEventName,
   KeyboardistListener,
   Layer,

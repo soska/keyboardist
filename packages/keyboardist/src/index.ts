@@ -2,6 +2,7 @@ import getKeyEventName from "./get-key-event-name";
 import isEditableTarget from "./is-editable-target";
 import isEventModifier from "./is-event-modifier";
 import {
+  type BindingDescriptor,
   type BindingInfo,
   type BindingMap,
   type Layer,
@@ -13,14 +14,18 @@ import {
 import { normalizeKeyName } from "./normalize-key-name";
 
 export type {
+  BindingDescriptor,
+  BindingEntry,
   BindingInfo,
   BindingMap,
+  BindingOptions,
   Layer,
   LayerOptions,
   PopHandle,
   Subscription,
   SubscriptionCallback,
 } from "./layer";
+export { resolveBinding, toBindingOptions } from "./layer";
 export { expandKeyAliases, normalizeKeyName } from "./normalize-key-name";
 
 export type KeyboardEventName = "keydown" | "keyup";
@@ -38,7 +43,11 @@ export interface MonitorInfo {
 export type MonitorCallback = (info: MonitorInfo) => void;
 
 export interface KeyboardistListener {
-  subscribe: (name: string, callback: SubscriptionCallback) => Subscription;
+  subscribe: (
+    name: string,
+    callback: SubscriptionCallback,
+    descriptor?: BindingDescriptor,
+  ) => Subscription;
   layer: (name: string, bindings?: BindingMap, options?: LayerOptions) => Layer;
   activeLayers: () => string[];
   getBindings: () => BindingInfo[];

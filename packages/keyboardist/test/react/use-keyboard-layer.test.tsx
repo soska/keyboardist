@@ -42,7 +42,7 @@ describe("useKeyboardLayer", () => {
       useKeyBindings({ KeyK: baseCallback }),
     );
     const { unmount: unmountLayer } = renderHook(() =>
-      useKeyboardLayer({ KeyL: vi.fn() }, { exclusive: true }),
+      useKeyboardLayer({ KeyL: vi.fn(() => {}) }, { exclusive: true }),
     );
 
     fireEvent.keyDown(document, { code: "KeyK" });

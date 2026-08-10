@@ -4,7 +4,7 @@ import {
   createListener,
   type KeyboardEventName,
 } from "../index";
-import { keySignatureOf } from "./use-key-bindings";
+import { bindingSignatureOf, subscribeBinding } from "./use-key-bindings";
 import { useLatest } from "./use-latest";
 
 export interface UseElementKeyBindingsOptions {
@@ -23,7 +23,7 @@ export function useElementKeyBindings(
 ): void {
   const { event = "keydown" } = options;
   const bindingsRef = useLatest(bindings);
-  const keySignature = keySignatureOf(bindings);
+  const bindingSignature = bindingSignatureOf(bindings);
   const [element, setElement] = useState<Element | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function useElementKeyBindings(
     }
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies(keySignature): resubscribes when the key set changes; callbacks are read through bindingsRef
+  // biome-ignore lint/correctness/useExhaustiveDependencies(bindingSignature): resubscribes when the key set or descriptions change; callbacks are read through bindingsRef
   useEffect(() => {
     if (!element) {
       return;
@@ -43,9 +43,7 @@ export function useElementKeyBindings(
     }
 
     const subscriptions = Object.keys(bindingsRef.current).map((key) =>
-      listener.subscribe(key, (keyboardEvent) =>
-        bindingsRef.current[key]?.(keyboardEvent),
-      ),
+      subscribeBinding(listener, bindingsRef, key),
     );
 
     return () => {
@@ -54,5 +52,5 @@ export function useElementKeyBindings(
       }
       listener.stopListening();
     };
-  }, [element, event, keySignature, bindingsRef]);
+  }, [element, event, bindingSignature, bindingsRef]);
 }
