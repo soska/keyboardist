@@ -34,10 +34,10 @@ const PRESS_ANY_KEY_HEADING = "press a key, any key";
 
 export default function PlayerDemo() {
   const { pressed, press } = usePressedKeys();
-  const [monitor, setMonitor] = useState({
-    heading: PRESS_ANY_KEY_HEADING,
-    detail: "",
-  });
+  const [monitor, setMonitor] = useState<{
+    heading: string;
+    matched?: boolean;
+  }>({ heading: PRESS_ANY_KEY_HEADING });
   const [modalOpen, setModalOpen] = useState(false);
   const resetRef = useRef<number | undefined>(undefined);
 
@@ -50,23 +50,28 @@ export default function PlayerDemo() {
   // A base-layer binding, below the player layer.
   useKeyBindings({ m: () => setModalOpen(true) });
 
-  // The monitor observes every key event and names the winning layer.
-  useKeyMonitor(({ keyName, matched, layer }) => {
+  // The monitor observes every key event; matched keys read dark, misses faint.
+  useKeyMonitor(({ keyName, matched }) => {
     window.clearTimeout(resetRef.current);
-    setMonitor({
-      heading: keyName,
-      detail: matched ? `matched in "${layer}"` : "no match",
-    });
+    setMonitor({ heading: keyName, matched });
     resetRef.current = window.setTimeout(() => {
-      setMonitor({ heading: PRESS_ANY_KEY_HEADING, detail: "" });
+      setMonitor({ heading: PRESS_ANY_KEY_HEADING });
     }, 1200);
   });
 
+  const headingColor =
+    monitor.matched === undefined
+      ? "text-zinc-500"
+      : monitor.matched
+        ? "text-zinc-800 dark:text-zinc-100"
+        : "text-zinc-400 dark:text-zinc-800";
+
   return (
     <div>
-      <div className="text-3xl font-semibold text-zinc-400 flex align-baseline justify-center py-3">
+      <div
+        className={`text-3xl font-semibold flex align-baseline justify-center py-3 ${headingColor}`}
+      >
         {monitor.heading}
-        <small>{monitor.detail || " "}</small>
       </div>
       <div className="key-rows">
         {KEY_ROWS.map((row) => (
@@ -101,8 +106,8 @@ export default function PlayerDemo() {
             <div className="layer-modal-box">
               <h3 className="text-lg font-semibold">Modal layer</h3>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                Try the player keys — nothing happens, and the monitor says "no
-                match". Press <strong>Esc</strong> to close.
+                Try the player keys — nothing happens, and the key name above
+                fades out. Press <strong>Esc</strong> to close.
               </p>
             </div>
           </div>
