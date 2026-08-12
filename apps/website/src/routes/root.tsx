@@ -12,7 +12,7 @@ export function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-6 px-4">
+        <div className="mx-auto flex  w-full max-w-5xl items-center gap-6 px-4">
           <Link
             to="/"
             className="font-semibold text-zinc-900 dark:text-zinc-100"
@@ -24,9 +24,10 @@ export function RootLayout() {
               <Link
                 key={to}
                 to={to}
-                className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                className="text-zinc-700 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-300  px-2 py-2.5 border-b-4 border-transparent hover:border-yellow-200 dark:hover:border-yellow-500 transition-colors duration-200"
                 activeProps={{
-                  className: "font-medium text-zinc-900 dark:text-zinc-100",
+                  className:
+                    "font-medium text-zinc-900 dark:text-zinc-100 border-yellow-200 dark:border-yellow-500",
                 }}
               >
                 {label}

@@ -11,8 +11,8 @@ import { usePageTitle } from "@/lib/use-page-title";
 export function HomePage() {
   usePageTitle();
   return (
-    <div className="py-16">
-      <section className="text-center">
+    <div className="flex flex-col gap-8 pt-8">
+      <section className="text-center bg-yellow-100 rounded-2xl pt-6 pb-8 border border-yellow-200 dark:bg-[#ffff0009] dark:border-[#ffff0005]">
         <HeroKeys />
         <p className="mx-auto mt-4 max-w-xl text-lg leading-8 text-zinc-600 dark:text-zinc-400">
           A declarative way to add keyboard shortcuts to your browser
@@ -41,14 +41,12 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="mt-16">
-        <h2 className="text-center text-sm font-medium uppercase tracking-wide text-zinc-400">
-          Try it — this page is listening
-        </h2>
+      <div>
+        <div>Try it out!</div>
         <DemoBlock source={playerDemoSource} fileName="player-demo.tsx">
           <PlayerDemo />
         </DemoBlock>
-      </section>
+      </div>
     </div>
   );
 }

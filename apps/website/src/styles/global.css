@@ -27,6 +27,47 @@ body {
   @apply bg-white text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-300;
 }
 
+/* CSS-only scrollspy for the "On this page" nav, via scroll-driven
+ * animations. Each docs section declares a named view timeline (inline, from
+ * the section manifest) and the layout wrapper hoists the names with
+ * timeline-scope; each TOC link runs a constant-keyframe animation on its
+ * section's timeline, so the highlight applies exactly while that section
+ * intersects the reading band. Browsers without support just keep the
+ * un-highlighted links. */
+.docs-section {
+  /* Reading band: a 4rem strip starting at 10rem — where anchored sections
+   * land (5rem scroll-padding + 5rem scroll-mt-20). A section is "current"
+   * while it crosses this strip; taller than the inter-section gap so the
+   * highlight never goes empty mid-scroll. */
+  view-timeline-inset: 10rem calc(100% - 14rem);
+}
+
+/* Let the last section fill the viewport below the reading band, so its
+ * anchor can always scroll up into the band — otherwise short final sections
+ * would never register as current. */
+.docs-section:last-child {
+  min-height: calc(100vh - 14rem);
+}
+
+.toc-link {
+  animation-name: toc-current;
+  animation-duration: 200ms;
+
+  /* animation-timeline is set inline per link */
+}
+
+@keyframes toc-current {
+  0%,
+  100% {
+    color: light-dark(var(--color-zinc-900), var(--color-zinc-800));
+    background-color: light-dark(
+      var(--color-yellow-200),
+      var(--color-yellow-500)
+    );
+    font-weight: 500;
+  }
+}
+
 /* Shiki emits a styled <pre>; the fallback (pre-highlight) <pre> matches its
  * github-dark background so the swap doesn't flash. */
 .code-block pre {
