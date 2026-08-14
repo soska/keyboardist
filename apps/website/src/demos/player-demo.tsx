@@ -44,7 +44,7 @@ export default function PlayerDemo() {
   // Every key above gets a binding on a layer named "player".
   useKeyboardLayer(
     Object.fromEntries(ALL_KEYS.map(({ id }) => [id, () => press(id)])),
-    { name: "player" },
+    { name: "player" }
   );
 
   // A base-layer binding, below the player layer.
@@ -63,8 +63,8 @@ export default function PlayerDemo() {
     monitor.matched === undefined
       ? "text-zinc-500"
       : monitor.matched
-        ? "text-zinc-800 dark:text-zinc-100"
-        : "text-zinc-400 dark:text-zinc-800";
+      ? "text-zinc-800 dark:text-zinc-100"
+      : "text-zinc-400 dark:text-zinc-800";
 
   return (
     <div>
@@ -73,7 +73,7 @@ export default function PlayerDemo() {
       >
         {monitor.heading}
       </div>
-      <div className="key-rows">
+      <div className="key-rows my-6">
         {KEY_ROWS.map((row) => (
           <div key={row.id} className="keys">
             {row.keys.map(({ id, label }) => (
@@ -84,18 +84,25 @@ export default function PlayerDemo() {
           </div>
         ))}
       </div>
-      <p className="mt-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        Press <kbd>M</kbd> (or the button) to open a modal on an{" "}
-        <em>exclusive</em> layer — it takes the whole keyboard until{" "}
-        <kbd>Esc</kbd> closes it.
-      </p>
-      <button
-        type="button"
-        onClick={() => setModalOpen(true)}
-        className="mx-auto mt-3 block rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-      >
-        Open modal (M)
-      </button>
+      <div className="flex flex-col gap-2 items-center bg-gray-50 dark:bg-zinc-900 p-6 rounded-md">
+        <p className="mt-2 text-center text-sm dark:text-zinc-400 mb-2">
+          Press <kbd>M</kbd> (or the button) to open a modal on an{" "}
+          <em>exclusive</em> layer — it takes the whole keyboard until{" "}
+          <kbd>Esc</kbd> closes it.
+        </p>
+        <div>
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="flex justify-center items-center gap-1 rounded-lg bg-zinc-900 dark:bg-zinc-200 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          >
+            Open modal
+            <span className="text-white/80 font-regular font-bold text-xs bg-white/10 p-0.5">
+              M
+            </span>
+          </button>
+        </div>
+      </div>
       {modalOpen && (
         <KeyboardLayer
           name="modal"
@@ -104,10 +111,16 @@ export default function PlayerDemo() {
         >
           <div className="layer-modal">
             <div className="layer-modal-box">
-              <h3 className="text-lg font-semibold">Modal layer</h3>
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                Try the player keys — nothing happens, and the key name above
-                fades out. Press <strong>Esc</strong> to close.
+              <h3 className="text-lg font-bold border-b border-b-zinc-500 -mt-4 pb-3 mb-2">
+                You've opened a Modal
+              </h3>
+              <p className="mt-2 text-sm text-zinc-600">
+                While you're here, all the other shortcut keys are disabled.
+                This is because the modal has it's own layer that gets activated
+                when it's opened and disabled when dismissed.
+              </p>
+              <p className="mt-2 text-sm text-zinc-600">
+                Press <strong>Esc</strong> to close.
               </p>
             </div>
           </div>
