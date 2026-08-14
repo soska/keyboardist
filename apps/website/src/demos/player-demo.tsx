@@ -44,7 +44,7 @@ export default function PlayerDemo() {
   // Every key above gets a binding on a layer named "player".
   useKeyboardLayer(
     Object.fromEntries(ALL_KEYS.map(({ id }) => [id, () => press(id)])),
-    { name: "player" }
+    { name: "player" },
   );
 
   // A base-layer binding, below the player layer.
@@ -63,8 +63,8 @@ export default function PlayerDemo() {
     monitor.matched === undefined
       ? "text-zinc-500"
       : monitor.matched
-      ? "text-zinc-800 dark:text-zinc-100"
-      : "text-zinc-400 dark:text-zinc-800";
+        ? "text-zinc-800 dark:text-zinc-100"
+        : "text-zinc-400 dark:text-zinc-800";
 
   return (
     <div>

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Key } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { DemoBlock } from "@/components/demo-block";
 import { HeroKeys } from "@/components/hero-keys";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -12,6 +12,7 @@ function KeyCapIllustration() {
   return (
     <div className="w-auto flex justify-center items-center p-1 [&>svg]:size-20 relative">
       <svg
+        aria-hidden="true"
         width="300"
         height="300"
         viewBox="0 0 300 300"
