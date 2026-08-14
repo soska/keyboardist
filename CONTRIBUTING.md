@@ -22,7 +22,18 @@ This is a pnpm workspace monorepo:
 
 ```sh
 pnpm install
-pnpm check   # lint + typecheck + test + build, same as CI
+pnpm check   # lint + typecheck + test + build + export validation, same as CI
+```
+
+`pnpm install` also points git at `.githooks/`, which installs a **pre-commit
+hook that runs the same checks as CI**. A commit that succeeds locally should
+mean a green CI run.
+
+The hook checks your working tree, not the staged snapshot — if you stage only
+part of your changes it will say so. To commit without running it:
+
+```sh
+git commit --no-verify
 ```
 
 Useful commands:

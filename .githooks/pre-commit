@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# Runs the same checks as .github/workflows/ci.yml, so a green commit here
+# means a green CI run. Keep the two in sync.
+#
+# Bypass with `git commit --no-verify` when you need to.
+
+failed=""
+
+run() {
+	name="$1"
+	shift
+	printf '\n\033[1m▸ %s\033[0m\n' "$name"
+	if "$@"; then
+		return 0
+	fi
+	failed="$failed $name"
+	return 1
+}
+
+# CI installs with --frozen-lockfile, which fails when package.json and the
+# lockfile disagree. Only worth checking when a manifest is actually staged.
+if git diff --cached --name-only | grep -qE '(^|/)package\.json$|^pnpm-lock\.yaml$|^pnpm-workspace\.yaml$'; then
+	run "Lockfile" pnpm install --frozen-lockfile --lockfile-only
+fi
+
+run "Lint" pnpm exec biome ci .
+run "Typecheck" pnpm -r typecheck
+run "Test" pnpm -r test
+
+# check:publish reads dist/, so it can only tell us anything if the build ran.
+if run "Build" pnpm -r build; then
+	run "Validate package exports" pnpm --filter keyboardist check:publish
+fi
+
+if [ -n "$failed" ]; then
+	printf '\n\033[1;31m✖ CI checks failed:\033[0m%s\n' "$failed"
+	printf '  Fix the above, or run \033[1mpnpm lint:fix\033[0m for lint/format issues.\n'
+	printf '  To commit anyway: \033[1mgit commit --no-verify\033[0m\n\n'
+	exit 1
+fi
+
+# These checks ran against the working tree, not the staged snapshot. If you
+# stage only part of your changes, CI sees something this hook never checked.
+if [ -n "$(git diff --name-only)" ]; then
+	printf '\n\033[33m! Checks ran against your working tree, which has unstaged changes.\033[0m\n'
+	printf '  CI will only see what you staged.\n'
+fi
+
+printf '\n\033[1;32m✔ CI checks passed\033[0m\n\n'

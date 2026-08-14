@@ -7,6 +7,7 @@
     "node": ">=20.19"
   },
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
     "dev": "pnpm --filter @keyboardist/website dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
@@ -14,7 +15,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "check": "pnpm exec biome ci . && pnpm -r typecheck && pnpm -r test && pnpm -r build && pnpm --filter keyboardist check:publish",
     "changeset": "changeset",
     "release": "pnpm -r build && changeset publish"
   },
