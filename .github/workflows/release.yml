@@ -36,7 +36,7 @@ jobs:
       # trusted publisher must be configured for this repo + workflow on
       # npmjs.com first.
       - name: Create release PR or publish
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           publish: pnpm release
         env:
