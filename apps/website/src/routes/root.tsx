@@ -1,4 +1,6 @@
 import { Link, Outlet } from "@tanstack/react-router";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 import { KeyboardNotice } from "@/components/keyboard-notice";
 import { KeycapTapHint } from "@/components/keycap-tap-hint";
 import { GitHubIcon } from "@/components/ui/github-icon";
@@ -11,18 +13,25 @@ const navigation = [
 ] as const;
 
 export function RootLayout() {
+  // Below `md` the nav links + GitHub link don't fit next to the logo and
+  // theme toggle without crushing everything — they move into this panel
+  // instead, toggled from a hamburger button in the header.
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const closeMobileNav = () => setMobileNavOpen(false);
+
   return (
     <div className="flex min-h-screen flex-col">
       <KeyboardNotice />
       <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
-        <div className="mx-auto flex  w-full max-w-5xl items-center gap-6 px-4">
+        <div className="mx-auto flex w-full max-w-5xl items-center gap-6 px-4">
           <Link
             to="/"
+            onClick={closeMobileNav}
             className="font-semibold text-zinc-900 dark:text-zinc-100"
           >
             🎹 Keyboardist
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
+          <nav className="hidden items-center gap-4 text-sm md:flex">
             {navigation.map(({ to, label }) => (
               <Link
                 key={to}
@@ -37,15 +46,57 @@ export function RootLayout() {
               </Link>
             ))}
           </nav>
-          <a
-            href="https://github.com/soska/keyboardist"
-            className="ml-auto inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-          >
-            <GitHubIcon className="size-3.5" />
-            GitHub
-          </a>
-          <ThemeToggle />
+          <div className="ml-auto flex items-center gap-3">
+            <a
+              href="https://github.com/soska/keyboardist"
+              className="hidden items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 md:inline-flex"
+            >
+              <GitHubIcon className="size-3.5" />
+              GitHub
+            </a>
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((open) => !open)}
+              aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileNavOpen}
+              className="rounded-md p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 md:hidden"
+            >
+              {mobileNavOpen ? (
+                <X aria-hidden className="size-5" />
+              ) : (
+                <Menu aria-hidden className="size-5" />
+              )}
+            </button>
+          </div>
         </div>
+        {mobileNavOpen && (
+          <nav className="border-t border-zinc-200 dark:border-zinc-800 md:hidden">
+            <div className="mx-auto flex w-full max-w-5xl flex-col gap-1 px-4 py-3">
+              {navigation.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={closeMobileNav}
+                  className="rounded-md px-3 py-2 text-sm text-zinc-700 dark:text-zinc-400"
+                  activeProps={{
+                    className:
+                      "font-medium bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100",
+                  }}
+                >
+                  {label}
+                </Link>
+              ))}
+              <a
+                href="https://github.com/soska/keyboardist"
+                className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400"
+              >
+                <GitHubIcon className="size-3.5" />
+                GitHub
+              </a>
+            </div>
+          </nav>
+        )}
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4">
         <Outlet />
