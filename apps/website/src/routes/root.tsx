@@ -1,4 +1,6 @@
 import { Link, Outlet } from "@tanstack/react-router";
+import { KeyboardNotice } from "@/components/keyboard-notice";
+import { KeycapTapHint } from "@/components/keycap-tap-hint";
 import { GitHubIcon } from "@/components/ui/github-icon";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -11,6 +13,7 @@ const navigation = [
 export function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col">
+      <KeyboardNotice />
       <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
         <div className="mx-auto flex  w-full max-w-5xl items-center gap-6 px-4">
           <Link
@@ -63,6 +66,7 @@ export function RootLayout() {
           Armando Sosa
         </a>
       </footer>
+      <KeycapTapHint />
     </div>
   );
 }
