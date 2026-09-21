@@ -36,8 +36,11 @@ jobs:
       # trusted publisher must be configured for this repo + workflow on
       # npmjs.com first.
       - name: Create release PR or publish
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          publish: pnpm release
+          publish-script: pnpm release
         env:
+          # The action itself authenticates via its github-token input (which
+          # defaults to this same token); this env var is only for
+          # @changesets/changelog-github, which reads it to look up PR info.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
